@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.dao.AdminAccountDao;
+import org.example.dao.StudentAccountDao;
 import org.example.presentation.AdminLoginScreen;
 import org.example.presentation.AdminMenuScreen;
 import org.example.presentation.CourseMenuScreen;
@@ -11,8 +13,11 @@ import org.example.presentation.StudentLoginScreen;
 import org.example.presentation.StudentManagementMenuScreen;
 import org.example.presentation.StudentMenuScreen;
 import org.example.presentation.StatisticsMenuScreen;
+import org.example.service.AuthenticationService;
+import org.example.service.JdbcAuthenticationService;
 import org.example.utils.ConsoleInput;
 import org.example.utils.ConsolePrinter;
+import org.example.utils.JdbcConnectionFactory;
 
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -31,10 +36,13 @@ public final class CourseManagementApplication {
     public CourseManagementApplication(InputStream inputStream, PrintStream printStream) {
         ConsoleInput input = new ConsoleInput(inputStream, printStream);
         this.printer = new ConsolePrinter(printStream);
+        JdbcConnectionFactory connectionFactory = new JdbcConnectionFactory();
+        AuthenticationService authenticationService = new JdbcAuthenticationService(new AdminAccountDao(connectionFactory),
+                                                                                    new StudentAccountDao(connectionFactory));
         this.screens = new EnumMap<>(ScreenResult.class);
         this.screens.put(ScreenResult.STARTUP, new StartupScreen(input, printer));
-        this.screens.put(ScreenResult.ADMIN_LOGIN, new AdminLoginScreen(input, printer));
-        this.screens.put(ScreenResult.STUDENT_LOGIN, new StudentLoginScreen(input, printer));
+        this.screens.put(ScreenResult.ADMIN_LOGIN, new AdminLoginScreen(input, printer, authenticationService));
+        this.screens.put(ScreenResult.STUDENT_LOGIN, new StudentLoginScreen(input, printer, authenticationService));
         this.screens.put(ScreenResult.ADMIN_MENU, new AdminMenuScreen(input, printer));
         this.screens.put(ScreenResult.COURSE_MENU, new CourseMenuScreen(input, printer));
         this.screens.put(ScreenResult.STUDENT_MANAGEMENT_MENU, new StudentManagementMenuScreen(input, printer));
