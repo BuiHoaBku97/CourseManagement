@@ -12,16 +12,22 @@ public final class JdbcAuthenticationService implements AuthenticationService {
     private final AdminAccountDao adminAccountDao;
     private final StudentAccountDao studentAccountDao;
 
+    private static AdminAccount defaultAdmin ;
+
     public JdbcAuthenticationService(
             AdminAccountDao adminAccountDao, StudentAccountDao studentAccountDao) {
         this.adminAccountDao = Objects.requireNonNull(adminAccountDao, "adminAccountDao");
         this.studentAccountDao = Objects.requireNonNull(studentAccountDao, "studentAccountDao");
+        defaultAdmin = adminAccountDao.getDefaultAdmin();
     }
 
     @Override
     public boolean authenticateAdmin(String username, String rawPassword) {
-        AdminAccount adminAccount =
-                adminAccountDao.findByUsername(username).orElse(null);
+        if ( username.equals(defaultAdmin.getUsername()) ){
+            return PasswordHasher.matches(rawPassword, defaultAdmin.getPasswordHash());
+        }
+
+        AdminAccount adminAccount = adminAccountDao.findByUsername(username).orElse(null);
         return adminAccount != null
                 && PasswordHasher.matches(rawPassword, adminAccount.getPasswordHash());
     }

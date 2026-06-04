@@ -2,6 +2,7 @@ package org.example.dao;
 
 import org.example.entity.AdminAccount;
 import org.example.utils.JdbcConnectionFactory;
+import org.example.utils.PasswordHasher;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -38,6 +39,10 @@ public final class AdminAccountDao {
         } catch (SQLException exception) {
             throw new IllegalStateException("Khong the doc du lieu admin.", exception);
         }
+    }
+
+    public AdminAccount getDefaultAdmin(){
+        return new AdminAccount(0, "admin", PasswordHasher.hash("admin"));
     }
 
     private String normalize(String value) {
