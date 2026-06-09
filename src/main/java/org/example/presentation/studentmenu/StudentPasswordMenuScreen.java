@@ -1,0 +1,50 @@
+package org.example.presentation.studentmenu;
+
+import org.example.entity.StudentAccount;
+import org.example.presentation.AbstractMenuScreen;
+import org.example.presentation.ScreenResult;
+import org.example.presentation.StudentSessionContext;
+import org.example.service.StudentPortalService;
+import org.example.utils.ConsoleInput;
+import org.example.utils.ConsolePrinter;
+
+import java.util.List;
+import java.util.Objects;
+
+public final class StudentPasswordMenuScreen extends AbstractMenuScreen {
+    private final StudentPortalService studentPortalService;
+    private final StudentSessionContext studentSessionContext;
+
+    public StudentPasswordMenuScreen(
+            ConsoleInput input,
+            ConsolePrinter printer,
+            StudentPortalService studentPortalService,
+            StudentSessionContext studentSessionContext) {
+        super(input, printer);
+        this.studentPortalService = Objects.requireNonNull(studentPortalService, "studentPortalService");
+        this.studentSessionContext = Objects.requireNonNull(studentSessionContext, "studentSessionContext");
+    }
+
+    @Override
+    public ScreenResult show() {
+        StudentAccount currentStudent = requireCurrentStudent();
+        handleChangePassword(currentStudent.getId());
+        return ScreenResult.STUDENT_MENU;
+    }
+
+    private void handleChangePassword(int studentId) {
+        try {
+            String currentPassword = input.readRequiredLine("Nhap mat khau hien tai: ");
+            String newPassword = input.readRequiredLine("Nhap mat khau moi: ");
+            studentPortalService.updatePassword(studentId, currentPassword, newPassword);
+            showMessagePlaceholder("CAP NHAT MAT KHAU", "Da cap nhat mat khau thanh cong.");
+        } catch (RuntimeException exception) {
+            showMessagePlaceholder("CAP NHAT MAT KHAU", exception.getMessage());
+        }
+    }
+
+    private StudentAccount requireCurrentStudent() {
+        return studentSessionContext.getCurrentStudent()
+                .orElseThrow(() -> new IllegalStateException("Khong co thong tin hoc vien dang nhap."));
+    }
+}

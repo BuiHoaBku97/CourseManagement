@@ -44,6 +44,102 @@ public final class EnrollmentDao {
         return queryDetails(sql);
     }
 
+    public List<EnrollmentDetail> findByStudentId(int studentId) {
+        return queryDetailsByStudent(
+                "SELECT e.id, e.course_id, c.name AS course_name, e.student_id, s.name AS student_name, "
+                        + "e.status, e.registered_at "
+                        + "FROM enrollment e "
+                        + "JOIN course c ON c.id = e.course_id "
+                        + "JOIN student s ON s.id = e.student_id "
+                        + "WHERE e.student_id = ? "
+                        + "ORDER BY c.name ASC, e.id ASC",
+                studentId);
+    }
+
+    public List<EnrollmentDetail> findByStudentIdSortedByCourseName(int studentId, boolean ascending) {
+        return queryDetailsByStudent(
+                "SELECT e.id, e.course_id, c.name AS course_name, e.student_id, s.name AS student_name, "
+                        + "e.status, e.registered_at "
+                        + "FROM enrollment e "
+                        + "JOIN course c ON c.id = e.course_id "
+                        + "JOIN student s ON s.id = e.student_id "
+                        + "WHERE e.student_id = ? "
+                        + "ORDER BY c.name "
+                        + (ascending ? "ASC" : "DESC"),
+                studentId);
+    }
+
+    public List<EnrollmentDetail> findByStudentIdSortedByCourseId(int studentId, boolean ascending) {
+        return queryDetailsByStudent(
+                "SELECT e.id, e.course_id, c.name AS course_name, e.student_id, s.name AS student_name, "
+                        + "e.status, e.registered_at "
+                        + "FROM enrollment e "
+                        + "JOIN course c ON c.id = e.course_id "
+                        + "JOIN student s ON s.id = e.student_id "
+                        + "WHERE e.student_id = ? "
+                        + "ORDER BY c.id "
+                        + (ascending ? "ASC" : "DESC"),
+                studentId);
+    }
+
+    public Optional<EnrollmentDetail> findDetailByStudentAndCourse(int studentId, int courseId) {
+        String sql =
+                "SELECT e.id, e.course_id, c.name AS course_name, e.student_id, s.name AS student_name, "
+                        + "e.status, e.registered_at "
+                        + "FROM enrollment e "
+                        + "JOIN course c ON c.id = e.course_id "
+                        + "JOIN student s ON s.id = e.student_id "
+                        + "WHERE e.student_id = ? AND e.course_id = ? "
+                        + "LIMIT 1";
+        try (Connection connection = connectionFactory.openConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, studentId);
+            statement.setInt(2, courseId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (!resultSet.next()) {
+                    return Optional.empty();
+                }
+                return Optional.of(mapDetail(resultSet));
+            }
+        } catch (SQLException exception) {
+            throw new IllegalStateException("Khong the doc du lieu dang ky.", exception);
+        }
+    }
+
+    public EnrollmentDetail insertWaiting(int studentId, int courseId) {
+        String sql =
+                "INSERT INTO enrollment (student_id, course_id, status) "
+                        + "VALUES (?, ?, 'WAITING') "
+                        + "RETURNING id, student_id, course_id, registered_at, status";
+        try (Connection connection = connectionFactory.openConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, studentId);
+            statement.setInt(2, courseId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (!resultSet.next()) {
+                    throw new IllegalStateException("Khong the tao dang ky.");
+                }
+                return findDetailByStudentAndCourse(studentId, courseId)
+                        .orElseThrow(() -> new IllegalStateException("Khong the xac minh dang ky sau khi tao."));
+            }
+        } catch (SQLException exception) {
+            throw new IllegalStateException("Khong the tao dang ky.", exception);
+        }
+    }
+
+    public boolean updateStatusByStudentAndCourse(int studentId, int courseId, EnrollmentStatus status) {
+        String sql = "UPDATE enrollment SET status = ? WHERE student_id = ? AND course_id = ?";
+        try (Connection connection = connectionFactory.openConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, status.name());
+            statement.setInt(2, studentId);
+            statement.setInt(3, courseId);
+            return statement.executeUpdate() > 0;
+        } catch (SQLException exception) {
+            throw new IllegalStateException("Khong the cap nhat trang thai dang ky.", exception);
+        }
+    }
+
     public Optional<Enrollment> findById(int id) {
         String sql =
                 "SELECT id, student_id, course_id, registered_at, status "
@@ -91,6 +187,22 @@ public final class EnrollmentDao {
                 details.add(mapDetail(resultSet));
             }
             return details;
+        } catch (SQLException exception) {
+            throw new IllegalStateException("Khong the doc du lieu dang ky.", exception);
+        }
+    }
+
+    private List<EnrollmentDetail> queryDetailsByStudent(String sql, int studentId) {
+        try (Connection connection = connectionFactory.openConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, studentId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                List<EnrollmentDetail> details = new ArrayList<>();
+                while (resultSet.next()) {
+                    details.add(mapDetail(resultSet));
+                }
+                return details;
+            }
         } catch (SQLException exception) {
             throw new IllegalStateException("Khong the doc du lieu dang ky.", exception);
         }

@@ -6,6 +6,7 @@ import org.example.entity.AdminAccount;
 import org.example.entity.StudentAccount;
 import org.example.utils.PasswordHasher;
 
+import java.util.Optional;
 import java.util.Objects;
 
 public final class JdbcAuthenticationService implements AuthenticationService {
@@ -34,9 +35,18 @@ public final class JdbcAuthenticationService implements AuthenticationService {
 
     @Override
     public boolean authenticateStudent(String loginId, String rawPassword) {
-        StudentAccount studentAccount =
-                studentAccountDao.findByLoginId(loginId).orElse(null);
-        return studentAccount != null
-                && PasswordHasher.matches(rawPassword, studentAccount.getPasswordHash());
+        return authenticateStudentAccount(loginId, rawPassword).isPresent();
+    }
+
+    @Override
+    public Optional<StudentAccount> authenticateStudentAccount(String loginId, String rawPassword) {
+        StudentAccount studentAccount = studentAccountDao.findByLoginId(loginId).orElse(null);
+        if (studentAccount == null) {
+            return Optional.empty();
+        }
+        if (!PasswordHasher.matches(rawPassword, studentAccount.getPasswordHash())) {
+            return Optional.empty();
+        }
+        return Optional.of(studentAccount);
     }
 }

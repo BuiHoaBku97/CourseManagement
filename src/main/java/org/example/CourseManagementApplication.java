@@ -16,9 +16,15 @@ import org.example.presentation.Screen;
 import org.example.presentation.ScreenResult;
 import org.example.presentation.StartupScreen;
 import org.example.presentation.StudentLoginScreen;
+import org.example.presentation.StudentSessionContext;
 import org.example.presentation.adminmenu.StudentEditMenuScreen;
 import org.example.presentation.adminmenu.StudentManagementMenuScreen;
 import org.example.presentation.studentmenu.StudentMenuScreen;
+import org.example.presentation.studentmenu.StudentCourseMenuScreen;
+import org.example.presentation.studentmenu.StudentRegisterCourseMenuScreen;
+import org.example.presentation.studentmenu.StudentPasswordMenuScreen;
+import org.example.presentation.studentmenu.StudentRegisteredCourseMenuScreen;
+import org.example.presentation.studentmenu.StudentCancelRegistrationMenuScreen;
 import org.example.presentation.adminmenu.StudentSortMenuScreen;
 import org.example.presentation.adminmenu.StatisticsMenuScreen;
 import org.example.service.AuthenticationService;
@@ -28,9 +34,11 @@ import org.example.service.JdbcCourseService;
 import org.example.service.JdbcEnrollmentService;
 import org.example.service.JdbcAuthenticationService;
 import org.example.service.JdbcStatisticsService;
+import org.example.service.JdbcStudentPortalService;
 import org.example.service.JdbcStudentService;
 import org.example.service.StatisticsService;
 import org.example.service.StudentService;
+import org.example.service.StudentPortalService;
 import org.example.utils.ConsoleInput;
 import org.example.utils.ConsolePrinter;
 import org.example.utils.JdbcConnectionFactory;
@@ -44,6 +52,7 @@ import java.util.Objects;
 public final class CourseManagementApplication {
     private final Map<ScreenResult, Screen> screens;
     private final ConsolePrinter printer;
+    private final StudentSessionContext studentSessionContext;
 
     public CourseManagementApplication() {
         this(System.in, System.out);
@@ -52,6 +61,7 @@ public final class CourseManagementApplication {
     public CourseManagementApplication(InputStream inputStream, PrintStream printStream) {
         ConsoleInput input = new ConsoleInput(inputStream, printStream);
         this.printer = new ConsolePrinter(printStream);
+        this.studentSessionContext = new StudentSessionContext();
         JdbcConnectionFactory connectionFactory = new JdbcConnectionFactory();
         AuthenticationService authenticationService = new JdbcAuthenticationService(new AdminAccountDao(connectionFactory),
                                                                                     new StudentAccountDao(connectionFactory));
@@ -59,10 +69,17 @@ public final class CourseManagementApplication {
         StudentService studentService = new JdbcStudentService(new StudentDao(connectionFactory));
         EnrollmentService enrollmentService = new JdbcEnrollmentService(new EnrollmentDao(connectionFactory));
         StatisticsService statisticsService = new JdbcStatisticsService(new StatisticsDao(connectionFactory));
+        StudentPortalService studentPortalService =
+                new JdbcStudentPortalService(
+                        new CourseDao(connectionFactory),
+                        new EnrollmentDao(connectionFactory),
+                        new StudentDao(connectionFactory));
         this.screens = new EnumMap<>(ScreenResult.class);
         this.screens.put(ScreenResult.STARTUP, new StartupScreen(input, printer));
         this.screens.put(ScreenResult.ADMIN_LOGIN, new AdminLoginScreen(input, printer, authenticationService));
-        this.screens.put(ScreenResult.STUDENT_LOGIN, new StudentLoginScreen(input, printer, authenticationService));
+        this.screens.put(
+                ScreenResult.STUDENT_LOGIN,
+                new StudentLoginScreen(input, printer, authenticationService, studentSessionContext));
         this.screens.put(ScreenResult.ADMIN_MENU, new AdminMenuScreen(input, printer));
         this.screens.put(ScreenResult.COURSE_MENU, new CourseMenuScreen(input, printer, courseService));
         this.screens.put(ScreenResult.COURSE_EDIT_MENU, new CourseEditMenuScreen(input, printer, courseService));
@@ -72,7 +89,24 @@ public final class CourseManagementApplication {
         this.screens.put(ScreenResult.STUDENT_SORT_MENU, new StudentSortMenuScreen(input, printer, studentService));
         this.screens.put(ScreenResult.ENROLLMENT_MENU, new EnrollmentMenuScreen(input, printer, enrollmentService));
         this.screens.put(ScreenResult.STATISTICS_MENU, new StatisticsMenuScreen(input, printer, statisticsService));
-        this.screens.put(ScreenResult.STUDENT_MENU, new StudentMenuScreen(input, printer));
+        this.screens.put(
+                ScreenResult.STUDENT_MENU,
+                new StudentMenuScreen(input, printer, studentSessionContext));
+        this.screens.put(
+                ScreenResult.STUDENT_COURSE_MENU,
+                new StudentCourseMenuScreen(input, printer, studentPortalService, studentSessionContext));
+        this.screens.put(
+                ScreenResult.STUDENT_REGISTER_COURSE_MENU,
+                new StudentRegisterCourseMenuScreen(input, printer, studentPortalService, studentSessionContext));
+        this.screens.put(
+                ScreenResult.STUDENT_REGISTERED_COURSE_MENU,
+                new StudentRegisteredCourseMenuScreen(input, printer, studentPortalService, studentSessionContext));
+        this.screens.put(
+                ScreenResult.STUDENT_CANCEL_REGISTRATION_MENU,
+                new StudentCancelRegistrationMenuScreen(input, printer, studentPortalService, studentSessionContext));
+        this.screens.put(
+                ScreenResult.STUDENT_PASSWORD_MENU,
+                new StudentPasswordMenuScreen(input, printer, studentPortalService, studentSessionContext));
     }
 
     public static void main(String[] args) {

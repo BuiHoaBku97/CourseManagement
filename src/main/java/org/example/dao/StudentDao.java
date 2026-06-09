@@ -46,7 +46,9 @@ public final class StudentDao {
                 if (!resultSet.next()) {
                     throw new IllegalStateException("Khong the tao hoc vien.");
                 }
-                return mapStudent(resultSet);
+                int insertedId = resultSet.getInt("id");
+                return findById(insertedId)
+                        .orElseThrow(() -> new IllegalStateException("Khong the xac minh hoc vien sau khi tao."));
             }
         } catch (SQLException exception) {
             throw translate(exception, "Khong the tao hoc vien.");

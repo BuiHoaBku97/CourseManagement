@@ -1,5 +1,6 @@
 package org.example.presentation;
 
+import org.example.entity.StudentAccount;
 import org.example.utils.ConsoleInput;
 import org.example.utils.ConsolePrinter;
 import org.example.service.AuthenticationService;
@@ -9,10 +10,16 @@ import java.util.Objects;
 
 public final class StudentLoginScreen extends AbstractMenuScreen {
     private final AuthenticationService authenticationService;
+    private final StudentSessionContext studentSessionContext;
 
-    public StudentLoginScreen( ConsoleInput input, ConsolePrinter printer, AuthenticationService authenticationService) {
+    public StudentLoginScreen(
+            ConsoleInput input,
+            ConsolePrinter printer,
+            AuthenticationService authenticationService,
+            StudentSessionContext studentSessionContext) {
         super(input, printer);
         this.authenticationService = Objects.requireNonNull(authenticationService, "authenticationService");
+        this.studentSessionContext = Objects.requireNonNull(studentSessionContext, "studentSessionContext");
     }
 
     @Override
@@ -27,7 +34,10 @@ public final class StudentLoginScreen extends AbstractMenuScreen {
             String password = input.readRequiredLine("Mat khau: ");
 
             try {
-                if (authenticationService.authenticateStudent(loginId, password)) {
+                StudentAccount studentAccount =
+                        authenticationService.authenticateStudentAccount(loginId, password).orElse(null);
+                if (studentAccount != null) {
+                    studentSessionContext.setCurrentStudent(studentAccount);
                     printer.printMessage("Dang nhap hoc vien thanh cong.");
                     return ScreenResult.STUDENT_MENU;
                 }
