@@ -1,5 +1,7 @@
-package org.example.presentation;
+package org.example.presentation.adminmenu;
 
+import org.example.presentation.AbstractMenuScreen;
+import org.example.presentation.ScreenResult;
 import org.example.utils.ConsoleInput;
 import org.example.utils.ConsolePrinter;
 
@@ -12,15 +14,16 @@ public final class AdminMenuScreen extends AbstractMenuScreen {
 
     @Override
     public ScreenResult show() {
-        renderMenu(
+        int choice = promptChoice(
                 "MENU QUAN TRI VIEN",
                 List.of(
                         "1. Quan ly khoa hoc",
                         "2. Quan ly hoc vien",
                         "3. Quan ly dang ky khoa hoc",
-                        "4. Thong ke hoc vien theo khoa hoc",
-                        "0. Dang xuat"));
-        int choice = input.readChoice("Lua chon: ", 0, 4);
+                        "4. Thong ke",
+                        "0. Dang xuat"),
+                0,
+                4);
         return switch (choice) {
             case 1 -> ScreenResult.COURSE_MENU;
             case 2 -> ScreenResult.STUDENT_MANAGEMENT_MENU;

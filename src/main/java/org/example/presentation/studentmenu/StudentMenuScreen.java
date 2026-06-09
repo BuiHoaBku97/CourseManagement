@@ -1,5 +1,7 @@
-package org.example.presentation;
+package org.example.presentation.studentmenu;
 
+import org.example.presentation.AbstractMenuScreen;
+import org.example.presentation.ScreenResult;
 import org.example.utils.ConsoleInput;
 import org.example.utils.ConsolePrinter;
 
@@ -13,7 +15,7 @@ public final class StudentMenuScreen extends AbstractMenuScreen {
     @Override
     public ScreenResult show() {
         while (true) {
-            renderMenu(
+            int choice = promptChoice(
                     "MENU HOC VIEN",
                     List.of(
                             "1. Xem danh sach khoa hoc",
@@ -21,9 +23,9 @@ public final class StudentMenuScreen extends AbstractMenuScreen {
                             "3. Xem khoa hoc da dang ky",
                             "4. Huy dang ky khoa hoc",
                             "5. Cap nhat mat khau",
-                            "0. Dang xuat"));
-
-            int choice = input.readChoice("Lua chon: ", 0, 5);
+                            "0. Dang xuat"),
+                    0,
+                    5);
             switch (choice) {
                 case 0 -> {
                     return ScreenResult.STARTUP;

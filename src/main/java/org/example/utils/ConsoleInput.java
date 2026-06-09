@@ -26,6 +26,12 @@ public final class ConsoleInput {
         }
     }
 
+    public String readLine(String prompt) {
+        out.print(prompt);
+        out.flush();
+        return scanner.nextLine();
+    }
+
     public int readChoice(String prompt, int minInclusive, int maxInclusive) {
         while (true) {
             out.print(prompt);

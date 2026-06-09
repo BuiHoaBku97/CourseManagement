@@ -12,13 +12,14 @@ public final class StartupScreen extends AbstractMenuScreen {
 
     @Override
     public ScreenResult show() {
-        renderMenu(
+        int choice = promptChoice(
                 "HE THONG QUAN LY KHOA HOC",
                 List.of(
                         "1. Dang nhap Admin",
                         "2. Dang nhap Hoc vien",
-                        "0. Thoat chuong trinh"));
-        int choice = input.readChoice("Lua chon: ", 0, 2);
+                        "0. Thoat chuong trinh"),
+                0,
+                2);
         return switch (choice) {
             case 1 -> ScreenResult.ADMIN_LOGIN;
             case 2 -> ScreenResult.STUDENT_LOGIN;

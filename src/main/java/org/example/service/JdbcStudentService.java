@@ -1,0 +1,162 @@
+package org.example.service;
+
+import org.example.dao.StudentDao;
+import org.example.entity.Student;
+import org.example.utils.InputValidator;
+import org.example.utils.PasswordHasher;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+public final class JdbcStudentService implements StudentService {
+    private final StudentDao studentDao;
+
+    public JdbcStudentService(StudentDao studentDao) {
+        this.studentDao = Objects.requireNonNull(studentDao, "studentDao");
+    }
+
+    @Override
+    public List<Student> getAllStudents() {
+        return studentDao.findAll();
+    }
+
+    @Override
+    public Optional<Student> findStudentById(int id) {
+        return studentDao.findById(id);
+    }
+
+    @Override
+    public Student addStudent(
+            String name,
+            LocalDate dob,
+            boolean sex,
+            String email,
+            String phone,
+            String rawPassword) {
+        validateStudent(name, dob, email, rawPassword);
+        return studentDao.insert(
+                new Student(0, name.trim(), dob, sex, email.trim(), normalizePhone(phone), PasswordHasher.hash(rawPassword), LocalDate.now()));
+    }
+
+    @Override
+    public Student updateStudentName(int id, String name) {
+        validateText(name, "ho ten");
+        ensureStudentExists(id);
+        if (!studentDao.updateName(id, name.trim())) {
+            throw new IllegalStateException("Khong the cap nhat ho ten hoc vien.");
+        }
+        return requireStudent(id);
+    }
+
+    @Override
+    public Student updateStudentDob(int id, LocalDate dob) {
+        if (dob == null) {
+            throw new IllegalArgumentException("Ngay sinh khong duoc de trong.");
+        }
+        ensureStudentExists(id);
+        if (!studentDao.updateDob(id, dob)) {
+            throw new IllegalStateException("Khong the cap nhat ngay sinh.");
+        }
+        return requireStudent(id);
+    }
+
+    @Override
+    public Student updateStudentSex(int id, boolean sex) {
+        ensureStudentExists(id);
+        if (!studentDao.updateSex(id, sex)) {
+            throw new IllegalStateException("Khong the cap nhat gioi tinh.");
+        }
+        return requireStudent(id);
+    }
+
+    @Override
+    public Student updateStudentEmail(int id, String email) {
+        validateEmail(email);
+        ensureStudentExists(id);
+        if (!studentDao.updateEmail(id, email.trim())) {
+            throw new IllegalStateException("Khong the cap nhat email.");
+        }
+        return requireStudent(id);
+    }
+
+    @Override
+    public Student updateStudentPhone(int id, String phone) {
+        ensureStudentExists(id);
+        if (!studentDao.updatePhone(id, normalizePhone(phone))) {
+            throw new IllegalStateException("Khong the cap nhat so dien thoai.");
+        }
+        return requireStudent(id);
+    }
+
+    @Override
+    public Student updateStudentPassword(int id, String rawPassword) {
+        validateText(rawPassword, "mat khau");
+        ensureStudentExists(id);
+        if (!studentDao.updatePassword(id, rawPassword.trim())) {
+            throw new IllegalStateException("Khong the cap nhat mat khau.");
+        }
+        return requireStudent(id);
+    }
+
+    @Override
+    public boolean deleteStudent(int id) {
+        ensureStudentExists(id);
+        return studentDao.deleteById(id);
+    }
+
+    @Override
+    public List<Student> searchStudents(String query) {
+        validateText(query, "tu khoa tim kiem");
+        return studentDao.search(query.trim());
+    }
+
+    @Override
+    public List<Student> sortStudentsByName(boolean ascending) {
+        return studentDao.sortByName(ascending);
+    }
+
+    @Override
+    public List<Student> sortStudentsById(boolean ascending) {
+        return studentDao.sortById(ascending);
+    }
+
+    private void validateStudent(String name, LocalDate dob, String email, String rawPassword) {
+        validateText(name, "ho ten");
+        if (dob == null) {
+            throw new IllegalArgumentException("Ngay sinh khong duoc de trong.");
+        }
+        validateEmail(email);
+        validateText(rawPassword, "mat khau");
+    }
+
+    private void validateText(String value, String fieldName) {
+        if (InputValidator.isBlank(value)) {
+            throw new IllegalArgumentException("Truong " + fieldName + " khong duoc de trong.");
+        }
+    }
+
+    private void validateEmail(String email) {
+        validateText(email, "email");
+        String normalized = email.trim();
+        if (!normalized.contains("@") || !normalized.contains(".")) {
+            throw new IllegalArgumentException("Email khong hop le.");
+        }
+    }
+
+    private String normalizePhone(String phone) {
+        return InputValidator.isBlank(phone) ? null : phone.trim();
+    }
+
+    private void ensureStudentExists(int id) {
+        if (studentDao.findById(id).isEmpty()) {
+            throw new IllegalStateException("Khong tim thay hoc vien voi id " + id + ".");
+        }
+    }
+
+    private Student requireStudent(int id) {
+        return studentDao.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Khong tim thay hoc vien voi id " + id + "."));
+    }
+}

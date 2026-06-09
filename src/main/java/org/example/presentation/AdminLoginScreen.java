@@ -19,8 +19,7 @@ public final class AdminLoginScreen extends AbstractMenuScreen {
 
     @Override
     public ScreenResult show() {
-        renderMenu("DANG NHAP ADMIN", List.of("1. Dang nhap", "0. Quay lai"));
-        int choice = input.readChoice("Lua chon: ", 0, 1);
+        int choice = promptChoice("DANG NHAP ADMIN", List.of("1. Dang nhap", "0. Quay lai"), 0, 1);
         if (choice == 0) {
             return ScreenResult.STARTUP;
         }

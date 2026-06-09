@@ -1,0 +1,118 @@
+package org.example.dao;
+
+import org.example.entity.Enrollment;
+import org.example.entity.EnrollmentDetail;
+import org.example.entity.EnrollmentStatus;
+import org.example.utils.JdbcConnectionFactory;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+public final class EnrollmentDao {
+    private final JdbcConnectionFactory connectionFactory;
+
+    public EnrollmentDao(JdbcConnectionFactory connectionFactory) {
+        this.connectionFactory = Objects.requireNonNull(connectionFactory, "connectionFactory");
+    }
+
+    public List<EnrollmentDetail> findAllDetails() {
+        String sql =
+                "SELECT e.id, e.course_id, c.name AS course_name, e.student_id, s.name AS student_name, "
+                        + "e.status, e.registered_at "
+                        + "FROM enrollment e "
+                        + "JOIN course c ON c.id = e.course_id "
+                        + "JOIN student s ON s.id = e.student_id "
+                        + "ORDER BY c.name ASC, e.registered_at DESC, e.id ASC";
+        return queryDetails(sql);
+    }
+
+    public List<EnrollmentDetail> findWaitingDetails() {
+        String sql =
+                "SELECT e.id, e.course_id, c.name AS course_name, e.student_id, s.name AS student_name, "
+                        + "e.status, e.registered_at "
+                        + "FROM enrollment e "
+                        + "JOIN course c ON c.id = e.course_id "
+                        + "JOIN student s ON s.id = e.student_id "
+                        + "WHERE e.status = 'WAITING' "
+                        + "ORDER BY e.registered_at ASC, e.id ASC";
+        return queryDetails(sql);
+    }
+
+    public Optional<Enrollment> findById(int id) {
+        String sql =
+                "SELECT id, student_id, course_id, registered_at, status "
+                        + "FROM enrollment WHERE id = ? LIMIT 1";
+        try (Connection connection = connectionFactory.openConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, id);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (!resultSet.next()) {
+                    return Optional.empty();
+                }
+                return Optional.of(mapEnrollment(resultSet));
+            }
+        } catch (SQLException exception) {
+            throw new IllegalStateException("Khong the doc du lieu dang ky.", exception);
+        }
+    }
+
+    public boolean approve(int id) {
+        return updateStatus(id, "CONFIRM");
+    }
+
+    public boolean cancel(int id) {
+        return updateStatus(id, "CANCEL");
+    }
+
+    private boolean updateStatus(int id, String status) {
+        String sql = "UPDATE enrollment SET status = ? WHERE id = ?";
+        try (Connection connection = connectionFactory.openConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, status);
+            statement.setInt(2, id);
+            return statement.executeUpdate() > 0;
+        } catch (SQLException exception) {
+            throw new IllegalStateException("Khong the cap nhat trang thai dang ky.", exception);
+        }
+    }
+
+    private List<EnrollmentDetail> queryDetails(String sql) {
+        try (Connection connection = connectionFactory.openConnection();
+                PreparedStatement statement = connection.prepareStatement(sql);
+                ResultSet resultSet = statement.executeQuery()) {
+            List<EnrollmentDetail> details = new ArrayList<>();
+            while (resultSet.next()) {
+                details.add(mapDetail(resultSet));
+            }
+            return details;
+        } catch (SQLException exception) {
+            throw new IllegalStateException("Khong the doc du lieu dang ky.", exception);
+        }
+    }
+
+    private EnrollmentDetail mapDetail(ResultSet resultSet) throws SQLException {
+        return new EnrollmentDetail(
+                resultSet.getInt("id"),
+                resultSet.getInt("course_id"),
+                resultSet.getString("course_name"),
+                resultSet.getInt("student_id"),
+                resultSet.getString("student_name"),
+                EnrollmentStatus.valueOf(resultSet.getString("status")),
+                resultSet.getTimestamp("registered_at").toLocalDateTime());
+    }
+
+    private Enrollment mapEnrollment(ResultSet resultSet) throws SQLException {
+        return new Enrollment(
+                resultSet.getInt("id"),
+                resultSet.getInt("student_id"),
+                resultSet.getInt("course_id"),
+                resultSet.getTimestamp("registered_at").toLocalDateTime(),
+                EnrollmentStatus.valueOf(resultSet.getString("status")));
+    }
+}
