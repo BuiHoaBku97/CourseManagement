@@ -22,5 +22,15 @@ public interface StudentPortalService {
 
     EnrollmentDetail cancelRegistration(int studentId, int courseId);
 
-    Student updatePassword(int studentId, String currentPassword, String newPassword);
+    void validateCurrentPassword(int studentId, String currentPassword);
+
+    void validateNewPassword(String newPassword);
+
+    void requestPasswordChangeOtp(int studentId);
+
+    Student updatePassword(
+            int studentId,
+            String otpCode,
+            String currentPassword,
+            String newPassword);
 }

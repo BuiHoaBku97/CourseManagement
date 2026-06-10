@@ -14,6 +14,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     implementation("org.postgresql:postgresql:42.7.11")
+    implementation("org.eclipse.angus:jakarta.mail:2.0.3")
 }
 
 tasks.test {

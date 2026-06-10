@@ -33,6 +33,7 @@ import org.example.service.EnrollmentService;
 import org.example.service.JdbcCourseService;
 import org.example.service.JdbcEnrollmentService;
 import org.example.service.JdbcAuthenticationService;
+import org.example.service.GmailSmtpOtpSender;
 import org.example.service.JdbcStatisticsService;
 import org.example.service.JdbcStudentPortalService;
 import org.example.service.JdbcStudentService;
@@ -73,7 +74,8 @@ public final class CourseManagementApplication {
                 new JdbcStudentPortalService(
                         new CourseDao(connectionFactory),
                         new EnrollmentDao(connectionFactory),
-                        new StudentDao(connectionFactory));
+                        new StudentDao(connectionFactory),
+                        GmailSmtpOtpSender.fromEnvironment());
         this.screens = new EnumMap<>(ScreenResult.class);
         this.screens.put(ScreenResult.STARTUP, new StartupScreen(input, printer));
         this.screens.put(ScreenResult.ADMIN_LOGIN, new AdminLoginScreen(input, printer, authenticationService));

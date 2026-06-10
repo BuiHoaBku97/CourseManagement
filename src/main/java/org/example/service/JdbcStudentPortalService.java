@@ -10,18 +10,33 @@ import org.example.entity.Student;
 import org.example.utils.InputValidator;
 import org.example.utils.PasswordHasher;
 
+import java.security.SecureRandom;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public final class JdbcStudentPortalService implements StudentPortalService {
+    private static final Duration OTP_VALIDITY = Duration.ofMinutes(5);
+    private static final SecureRandom RANDOM = new SecureRandom();
+
     private final CourseDao courseDao;
     private final EnrollmentDao enrollmentDao;
     private final StudentDao studentDao;
+    private final OtpSender otpSender;
+    private final Map<Integer, PasswordOtpChallenge> passwordOtpChallenges = new HashMap<>();
 
-    public JdbcStudentPortalService(CourseDao courseDao, EnrollmentDao enrollmentDao, StudentDao studentDao) {
+    public JdbcStudentPortalService(
+            CourseDao courseDao,
+            EnrollmentDao enrollmentDao,
+            StudentDao studentDao,
+            OtpSender otpSender) {
         this.courseDao = Objects.requireNonNull(courseDao, "courseDao");
         this.enrollmentDao = Objects.requireNonNull(enrollmentDao, "enrollmentDao");
         this.studentDao = Objects.requireNonNull(studentDao, "studentDao");
+        this.otpSender = Objects.requireNonNull(otpSender, "otpSender");
     }
 
     @Override
@@ -91,17 +106,53 @@ public final class JdbcStudentPortalService implements StudentPortalService {
     }
 
     @Override
-    public Student updatePassword(int studentId, String currentPassword, String newPassword) {
-        if (InputValidator.isBlank(newPassword)) {
-            throw new IllegalArgumentException("Mat khau moi khong duoc de trong.");
-        }
+    public void validateCurrentPassword(int studentId, String currentPassword) {
         Student currentStudent = ensureStudentExists(studentId);
         if (!PasswordHasher.matches(currentPassword, currentStudent.getPasswordHash())) {
             throw new IllegalStateException("Mat khau hien tai khong chinh xac.");
         }
+    }
+
+    @Override
+    public void validateNewPassword(String newPassword) {
+        if (InputValidator.isBlank(newPassword)) {
+            throw new IllegalArgumentException("Mat khau moi khong duoc de trong.");
+        }
+    }
+
+    @Override
+    public void requestPasswordChangeOtp(int studentId) {
+        Student currentStudent = ensureStudentExists(studentId);
+        String otpCode = generateOtpCode();
+        otpSender.sendPasswordChangeOtp(currentStudent.getEmail(), otpCode);
+        passwordOtpChallenges.put(studentId, new PasswordOtpChallenge(otpCode, Instant.now()));
+    }
+
+    @Override
+    public Student updatePassword(
+            int studentId,
+            String otpCode,
+            String currentPassword,
+            String newPassword) {
+        Student currentStudent = ensureStudentExists(studentId);
+        PasswordOtpChallenge challenge =
+                passwordOtpChallenges.get(studentId);
+        if (challenge == null) {
+            throw new IllegalStateException("Vui long yeu cau OTP truoc khi doi mat khau.");
+        }
+        if (challenge.isExpired()) {
+            passwordOtpChallenges.remove(studentId);
+            throw new IllegalStateException("OTP da het han. Vui long yeu cau ma moi.");
+        }
+        if (!challenge.otpCode.equals(otpCode == null ? null : otpCode.trim())) {
+            throw new IllegalStateException("Ma OTP khong chinh xac.");
+        }
+        validateCurrentPassword(studentId, currentPassword);
+        validateNewPassword(newPassword);
         if (!studentDao.updatePassword(studentId, newPassword)) {
             throw new IllegalStateException("Khong the cap nhat mat khau.");
         }
+        passwordOtpChallenges.remove(studentId);
         return ensureStudentExists(studentId);
     }
 
@@ -113,5 +164,16 @@ public final class JdbcStudentPortalService implements StudentPortalService {
     private Course ensureCourseExists(int courseId) {
         return courseDao.findById(courseId)
                 .orElseThrow(() -> new IllegalStateException("Khong tim thay khoa hoc voi id " + courseId + "."));
+    }
+
+    private String generateOtpCode() {
+        int value = RANDOM.nextInt(900000) + 100000;
+        return String.valueOf(value);
+    }
+
+    private record PasswordOtpChallenge(String otpCode, Instant issuedAt) {
+        private boolean isExpired() {
+            return issuedAt.plus(OTP_VALIDITY).isBefore(Instant.now());
+        }
     }
 }

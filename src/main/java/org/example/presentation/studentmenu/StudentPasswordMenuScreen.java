@@ -35,8 +35,13 @@ public final class StudentPasswordMenuScreen extends AbstractMenuScreen {
     private void handleChangePassword(int studentId) {
         try {
             String currentPassword = input.readRequiredLine("Nhap mat khau hien tai: ");
+            studentPortalService.validateCurrentPassword(studentId, currentPassword);
             String newPassword = input.readRequiredLine("Nhap mat khau moi: ");
-            studentPortalService.updatePassword(studentId, currentPassword, newPassword);
+            studentPortalService.validateNewPassword(newPassword);
+            studentPortalService.requestPasswordChangeOtp(studentId);
+            printer.printMessage("Ma OTP da duoc gui den email dang ky.");
+            String inputOtp = input.readRequiredLine("Nhap ma OTP: ");
+            studentPortalService.updatePassword(studentId, inputOtp, currentPassword, newPassword);
             showMessagePlaceholder("CAP NHAT MAT KHAU", "Da cap nhat mat khau thanh cong.");
         } catch (RuntimeException exception) {
             showMessagePlaceholder("CAP NHAT MAT KHAU", exception.getMessage());

@@ -37,7 +37,7 @@ public final class StudentDao {
     public Student insert(Student student) {
         String sql =
                 "INSERT INTO student (name, dob, sex, email, phone, password) "
-                        + "VALUES (?, ?, ?, ?, ?, ?) "
+                        + "VALUES (?, ?, CAST(? AS BIT(1)), ?, ?, ?) "
                         + "RETURNING id, name, dob, sex, email, phone, password, create_at";
         try (Connection connection = connectionFactory.openConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -64,7 +64,7 @@ public final class StudentDao {
     }
 
     public boolean updateSex(int id, boolean sex) {
-        return updateField("UPDATE student SET sex = ? WHERE id = ?", sex ? "1" : "0", id);
+        return updateField("UPDATE student SET sex = CAST(? AS BIT(1)) WHERE id = ?", sex ? "1" : "0", id);
     }
 
     public boolean updateEmail(int id, String email) {
