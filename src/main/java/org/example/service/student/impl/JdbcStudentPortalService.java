@@ -7,6 +7,7 @@ import org.example.entity.Course;
 import org.example.entity.EnrollmentDetail;
 import org.example.entity.EnrollmentStatus;
 import org.example.entity.Student;
+import org.example.service.student.OtpSender;
 import org.example.utils.InputValidator;
 import org.example.utils.PasswordHasher;
 
@@ -25,14 +26,14 @@ public final class JdbcStudentPortalService implements org.example.service.stude
     private final ICourseDao courseDao;
     private final IEnrollmentDao enrollmentDao;
     private final IStudentDao studentDao;
-    private final org.example.service.student.OtpSender otpSender;
+    private final OtpSender otpSender;
     private final Map<Integer, PasswordOtpChallenge> passwordOtpChallenges = new HashMap<>();
 
     public JdbcStudentPortalService(
             ICourseDao courseDao,
             IEnrollmentDao enrollmentDao,
             IStudentDao studentDao,
-            org.example.service.student.OtpSender otpSender) {
+            OtpSender otpSender) {
         this.courseDao = Objects.requireNonNull(courseDao, "courseDao");
         this.enrollmentDao = Objects.requireNonNull(enrollmentDao, "enrollmentDao");
         this.studentDao = Objects.requireNonNull(studentDao, "studentDao");

@@ -3,11 +3,12 @@ package org.example.service.admin.impl;
 import org.example.dao.IEnrollmentDao;
 import org.example.entity.EnrollmentDetail;
 import org.example.entity.EnrollmentStatus;
+import org.example.service.admin.EnrollmentService;
 
 import java.util.List;
 import java.util.Objects;
 
-public final class JdbcEnrollmentService implements org.example.service.admin.EnrollmentService {
+public final class JdbcEnrollmentService implements EnrollmentService {
     private final IEnrollmentDao enrollmentDao;
 
     public JdbcEnrollmentService(IEnrollmentDao enrollmentDao) {

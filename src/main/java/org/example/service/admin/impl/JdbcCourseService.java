@@ -2,6 +2,7 @@ package org.example.service.admin.impl;
 
 import org.example.dao.ICourseDao;
 import org.example.entity.Course;
+import org.example.service.admin.CourseService;
 import org.example.utils.InputValidator;
 
 import java.time.LocalDate;
@@ -9,7 +10,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public final class JdbcCourseService implements org.example.service.admin.CourseService {
+public final class JdbcCourseService implements CourseService {
     private final ICourseDao courseDao;
 
     public JdbcCourseService(ICourseDao courseDao) {
