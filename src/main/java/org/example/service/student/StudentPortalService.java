@@ -1,10 +1,9 @@
-package org.example.service;
+package org.example.service.student;
 
 import org.example.entity.Course;
 import org.example.entity.EnrollmentDetail;
 import org.example.entity.Student;
 
-import java.time.LocalDate;
 import java.util.List;
 
 public interface StudentPortalService {

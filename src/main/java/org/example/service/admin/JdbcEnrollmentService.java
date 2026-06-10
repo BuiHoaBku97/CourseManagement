@@ -1,4 +1,4 @@
-package org.example.service;
+package org.example.service.admin;
 
 import org.example.dao.EnrollmentDao;
 import org.example.entity.EnrollmentDetail;

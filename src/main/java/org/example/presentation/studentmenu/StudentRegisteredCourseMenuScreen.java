@@ -5,7 +5,7 @@ import org.example.entity.StudentAccount;
 import org.example.presentation.AbstractMenuScreen;
 import org.example.presentation.ScreenResult;
 import org.example.presentation.StudentSessionContext;
-import org.example.service.StudentPortalService;
+import org.example.service.student.StudentPortalService;
 import org.example.utils.ConsoleInput;
 import org.example.utils.ConsolePrinter;
 

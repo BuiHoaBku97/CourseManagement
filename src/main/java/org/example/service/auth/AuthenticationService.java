@@ -1,4 +1,4 @@
-package org.example.service;
+package org.example.service.auth;
 
 import org.example.entity.StudentAccount;
 

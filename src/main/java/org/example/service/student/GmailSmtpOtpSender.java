@@ -1,4 +1,4 @@
-package org.example.service;
+package org.example.service.student;
 
 import jakarta.mail.Authenticator;
 import jakarta.mail.Message;

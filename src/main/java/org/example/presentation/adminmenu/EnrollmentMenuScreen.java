@@ -3,7 +3,7 @@ package org.example.presentation.adminmenu;
 import org.example.entity.EnrollmentDetail;
 import org.example.presentation.AbstractMenuScreen;
 import org.example.presentation.ScreenResult;
-import org.example.service.EnrollmentService;
+import org.example.service.admin.EnrollmentService;
 import org.example.utils.ConsoleInput;
 import org.example.utils.ConsolePrinter;
 

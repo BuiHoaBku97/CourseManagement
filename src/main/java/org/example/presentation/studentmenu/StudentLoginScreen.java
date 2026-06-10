@@ -6,7 +6,7 @@ import org.example.presentation.ScreenResult;
 import org.example.presentation.StudentSessionContext;
 import org.example.utils.ConsoleInput;
 import org.example.utils.ConsolePrinter;
-import org.example.service.AuthenticationService;
+import org.example.service.auth.AuthenticationService;
 
 import java.util.List;
 import java.util.Objects;

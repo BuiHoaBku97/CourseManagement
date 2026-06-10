@@ -1,4 +1,4 @@
-package org.example.service;
+package org.example.service.student;
 
 import org.example.dao.StudentDao;
 import org.example.entity.Student;

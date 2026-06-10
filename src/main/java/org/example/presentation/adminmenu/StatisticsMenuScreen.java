@@ -4,7 +4,7 @@ import org.example.entity.CourseEnrollmentStat;
 import org.example.entity.SystemSummary;
 import org.example.presentation.AbstractMenuScreen;
 import org.example.presentation.ScreenResult;
-import org.example.service.StatisticsService;
+import org.example.service.admin.StatisticsService;
 import org.example.utils.ConsoleInput;
 import org.example.utils.ConsolePrinter;
 

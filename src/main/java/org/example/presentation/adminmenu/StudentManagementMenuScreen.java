@@ -3,10 +3,9 @@ package org.example.presentation.adminmenu;
 import org.example.entity.Student;
 import org.example.presentation.AbstractMenuScreen;
 import org.example.presentation.ScreenResult;
-import org.example.service.StudentService;
+import org.example.service.student.StudentService;
 import org.example.utils.ConsoleInput;
 import org.example.utils.ConsolePrinter;
-import org.example.utils.InputValidator;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
