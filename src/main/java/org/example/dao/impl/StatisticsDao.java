@@ -1,5 +1,6 @@
-package org.example.dao;
+package org.example.dao.impl;
 
+import org.example.dao.IStatisticsDao;
 import org.example.entity.CourseEnrollmentStat;
 import org.example.entity.SystemSummary;
 import org.example.utils.JdbcConnectionFactory;
@@ -12,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public final class StatisticsDao {
+public final class StatisticsDao implements IStatisticsDao {
     private final JdbcConnectionFactory connectionFactory;
 
     public StatisticsDao(JdbcConnectionFactory connectionFactory) {

@@ -1,5 +1,6 @@
-package org.example.dao;
+package org.example.dao.impl;
 
+import org.example.dao.IStudentAccountDao;
 import org.example.entity.StudentAccount;
 import org.example.utils.JdbcConnectionFactory;
 
@@ -10,7 +11,7 @@ import java.sql.SQLException;
 import java.util.Objects;
 import java.util.Optional;
 
-public final class StudentAccountDao {
+public final class StudentAccountDao implements IStudentAccountDao {
     private final JdbcConnectionFactory connectionFactory;
 
     public StudentAccountDao(JdbcConnectionFactory connectionFactory) {

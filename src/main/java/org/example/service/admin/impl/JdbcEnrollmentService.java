@@ -1,16 +1,16 @@
-package org.example.service.admin;
+package org.example.service.admin.impl;
 
-import org.example.dao.EnrollmentDao;
+import org.example.dao.IEnrollmentDao;
 import org.example.entity.EnrollmentDetail;
 import org.example.entity.EnrollmentStatus;
 
 import java.util.List;
 import java.util.Objects;
 
-public final class JdbcEnrollmentService implements EnrollmentService {
-    private final EnrollmentDao enrollmentDao;
+public final class JdbcEnrollmentService implements org.example.service.admin.EnrollmentService {
+    private final IEnrollmentDao enrollmentDao;
 
-    public JdbcEnrollmentService(EnrollmentDao enrollmentDao) {
+    public JdbcEnrollmentService(IEnrollmentDao enrollmentDao) {
         this.enrollmentDao = Objects.requireNonNull(enrollmentDao, "enrollmentDao");
     }
 

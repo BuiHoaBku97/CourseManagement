@@ -1,16 +1,16 @@
-package org.example.service.admin;
+package org.example.service.admin.impl;
 
-import org.example.dao.StatisticsDao;
+import org.example.dao.IStatisticsDao;
 import org.example.entity.CourseEnrollmentStat;
 import org.example.entity.SystemSummary;
 
 import java.util.List;
 import java.util.Objects;
 
-public final class JdbcStatisticsService implements StatisticsService {
-    private final StatisticsDao statisticsDao;
+public final class JdbcStatisticsService implements org.example.service.admin.StatisticsService {
+    private final IStatisticsDao statisticsDao;
 
-    public JdbcStatisticsService(StatisticsDao statisticsDao) {
+    public JdbcStatisticsService(IStatisticsDao statisticsDao) {
         this.statisticsDao = Objects.requireNonNull(statisticsDao, "statisticsDao");
     }
 

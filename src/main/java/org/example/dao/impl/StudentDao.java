@@ -1,5 +1,6 @@
-package org.example.dao;
+package org.example.dao.impl;
 
+import org.example.dao.IStudentDao;
 import org.example.entity.Student;
 import org.example.utils.JdbcConnectionFactory;
 import org.example.utils.PasswordHasher;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public final class StudentDao {
+public final class StudentDao implements IStudentDao {
     private final JdbcConnectionFactory connectionFactory;
 
     public StudentDao(JdbcConnectionFactory connectionFactory) {

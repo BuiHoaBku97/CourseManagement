@@ -1,6 +1,6 @@
-package org.example.service.student;
+package org.example.service.student.impl;
 
-import org.example.dao.StudentDao;
+import org.example.dao.IStudentDao;
 import org.example.entity.Student;
 import org.example.utils.InputValidator;
 import org.example.utils.PasswordHasher;
@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public final class JdbcStudentService implements StudentService {
-    private final StudentDao studentDao;
+public final class JdbcStudentService implements org.example.service.student.StudentService {
+    private final IStudentDao studentDao;
 
-    public JdbcStudentService(StudentDao studentDao) {
+    public JdbcStudentService(IStudentDao studentDao) {
         this.studentDao = Objects.requireNonNull(studentDao, "studentDao");
     }
 

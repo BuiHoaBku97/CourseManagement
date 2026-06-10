@@ -1,6 +1,6 @@
-package org.example.service.admin;
+package org.example.service.admin.impl;
 
-import org.example.dao.CourseDao;
+import org.example.dao.ICourseDao;
 import org.example.entity.Course;
 import org.example.utils.InputValidator;
 
@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public final class JdbcCourseService implements CourseService {
-    private final CourseDao courseDao;
+public final class JdbcCourseService implements org.example.service.admin.CourseService {
+    private final ICourseDao courseDao;
 
-    public JdbcCourseService(CourseDao courseDao) {
+    public JdbcCourseService(ICourseDao courseDao) {
         this.courseDao = Objects.requireNonNull(courseDao, "courseDao");
     }
 

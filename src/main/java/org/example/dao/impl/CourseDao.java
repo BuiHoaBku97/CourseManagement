@@ -1,5 +1,6 @@
-package org.example.dao;
+package org.example.dao.impl;
 
+import org.example.dao.ICourseDao;
 import org.example.entity.Course;
 import org.example.utils.JdbcConnectionFactory;
 
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public final class CourseDao {
+public final class CourseDao implements ICourseDao {
     private final JdbcConnectionFactory connectionFactory;
 
     public CourseDao(JdbcConnectionFactory connectionFactory) {

@@ -1,7 +1,7 @@
-package org.example.service.auth;
+package org.example.service.auth.impl;
 
-import org.example.dao.AdminAccountDao;
-import org.example.dao.StudentAccountDao;
+import org.example.dao.IAdminAccountDao;
+import org.example.dao.IStudentAccountDao;
 import org.example.entity.AdminAccount;
 import org.example.entity.StudentAccount;
 import org.example.utils.PasswordHasher;
@@ -9,14 +9,14 @@ import org.example.utils.PasswordHasher;
 import java.util.Optional;
 import java.util.Objects;
 
-public final class JdbcAuthenticationService implements AuthenticationService {
-    private final AdminAccountDao adminAccountDao;
-    private final StudentAccountDao studentAccountDao;
+public final class JdbcAuthenticationService implements org.example.service.auth.AuthenticationService {
+    private final IAdminAccountDao adminAccountDao;
+    private final IStudentAccountDao studentAccountDao;
 
     private static AdminAccount defaultAdmin ;
 
     public JdbcAuthenticationService(
-            AdminAccountDao adminAccountDao, StudentAccountDao studentAccountDao) {
+            IAdminAccountDao adminAccountDao, IStudentAccountDao studentAccountDao) {
         this.adminAccountDao = Objects.requireNonNull(adminAccountDao, "adminAccountDao");
         this.studentAccountDao = Objects.requireNonNull(studentAccountDao, "studentAccountDao");
         defaultAdmin = adminAccountDao.getDefaultAdmin();

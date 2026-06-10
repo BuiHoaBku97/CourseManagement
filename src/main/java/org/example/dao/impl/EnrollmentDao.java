@@ -1,5 +1,6 @@
-package org.example.dao;
+package org.example.dao.impl;
 
+import org.example.dao.IEnrollmentDao;
 import org.example.entity.Enrollment;
 import org.example.entity.EnrollmentDetail;
 import org.example.entity.EnrollmentStatus;
@@ -14,7 +15,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public final class EnrollmentDao {
+public final class EnrollmentDao implements IEnrollmentDao {
     private final JdbcConnectionFactory connectionFactory;
 
     public EnrollmentDao(JdbcConnectionFactory connectionFactory) {

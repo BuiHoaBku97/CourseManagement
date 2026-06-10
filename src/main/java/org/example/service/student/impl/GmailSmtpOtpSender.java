@@ -1,4 +1,4 @@
-package org.example.service.student;
+package org.example.service.student.impl;
 
 import jakarta.mail.Authenticator;
 import jakarta.mail.Message;
@@ -13,7 +13,7 @@ import jakarta.mail.AuthenticationFailedException;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
-public final class GmailSmtpOtpSender implements OtpSender {
+public final class GmailSmtpOtpSender implements org.example.service.student.OtpSender {
     private static final String DEFAULT_HOST = "smtp.gmail.com";
     private static final int DEFAULT_PORT = 587;
 

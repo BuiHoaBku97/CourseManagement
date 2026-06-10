@@ -1,5 +1,6 @@
-package org.example.dao;
+package org.example.dao.impl;
 
+import org.example.dao.IAdminAccountDao;
 import org.example.entity.AdminAccount;
 import org.example.utils.JdbcConnectionFactory;
 import org.example.utils.PasswordHasher;
@@ -11,7 +12,7 @@ import java.sql.SQLException;
 import java.util.Objects;
 import java.util.Optional;
 
-public final class AdminAccountDao {
+public final class AdminAccountDao implements IAdminAccountDao {
     private final JdbcConnectionFactory connectionFactory;
 
     public AdminAccountDao(JdbcConnectionFactory connectionFactory) {

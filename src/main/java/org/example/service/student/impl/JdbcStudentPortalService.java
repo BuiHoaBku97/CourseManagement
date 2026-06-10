@@ -1,8 +1,8 @@
-package org.example.service.student;
+package org.example.service.student.impl;
 
-import org.example.dao.CourseDao;
-import org.example.dao.EnrollmentDao;
-import org.example.dao.StudentDao;
+import org.example.dao.ICourseDao;
+import org.example.dao.IEnrollmentDao;
+import org.example.dao.IStudentDao;
 import org.example.entity.Course;
 import org.example.entity.EnrollmentDetail;
 import org.example.entity.EnrollmentStatus;
@@ -18,21 +18,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public final class JdbcStudentPortalService implements StudentPortalService {
+public final class JdbcStudentPortalService implements org.example.service.student.StudentPortalService {
     private static final Duration OTP_VALIDITY = Duration.ofMinutes(5);
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    private final CourseDao courseDao;
-    private final EnrollmentDao enrollmentDao;
-    private final StudentDao studentDao;
-    private final OtpSender otpSender;
+    private final ICourseDao courseDao;
+    private final IEnrollmentDao enrollmentDao;
+    private final IStudentDao studentDao;
+    private final org.example.service.student.OtpSender otpSender;
     private final Map<Integer, PasswordOtpChallenge> passwordOtpChallenges = new HashMap<>();
 
     public JdbcStudentPortalService(
-            CourseDao courseDao,
-            EnrollmentDao enrollmentDao,
-            StudentDao studentDao,
-            OtpSender otpSender) {
+            ICourseDao courseDao,
+            IEnrollmentDao enrollmentDao,
+            IStudentDao studentDao,
+            org.example.service.student.OtpSender otpSender) {
         this.courseDao = Objects.requireNonNull(courseDao, "courseDao");
         this.enrollmentDao = Objects.requireNonNull(enrollmentDao, "enrollmentDao");
         this.studentDao = Objects.requireNonNull(studentDao, "studentDao");
