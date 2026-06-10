@@ -1,5 +1,7 @@
-package org.example.presentation;
+package org.example.presentation.adminmenu;
 
+import org.example.presentation.AbstractMenuScreen;
+import org.example.presentation.ScreenResult;
 import org.example.utils.ConsoleInput;
 import org.example.utils.ConsolePrinter;
 import org.example.service.AuthenticationService;

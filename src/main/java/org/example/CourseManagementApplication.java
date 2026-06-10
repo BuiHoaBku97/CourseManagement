@@ -6,7 +6,7 @@ import org.example.dao.EnrollmentDao;
 import org.example.dao.StudentAccountDao;
 import org.example.dao.StudentDao;
 import org.example.dao.StatisticsDao;
-import org.example.presentation.AdminLoginScreen;
+import org.example.presentation.adminmenu.AdminLoginScreen;
 import org.example.presentation.adminmenu.AdminMenuScreen;
 import org.example.presentation.adminmenu.CourseEditMenuScreen;
 import org.example.presentation.adminmenu.CourseMenuScreen;
@@ -15,7 +15,7 @@ import org.example.presentation.adminmenu.EnrollmentMenuScreen;
 import org.example.presentation.Screen;
 import org.example.presentation.ScreenResult;
 import org.example.presentation.StartupScreen;
-import org.example.presentation.StudentLoginScreen;
+import org.example.presentation.studentmenu.StudentLoginScreen;
 import org.example.presentation.StudentSessionContext;
 import org.example.presentation.adminmenu.StudentEditMenuScreen;
 import org.example.presentation.adminmenu.StudentManagementMenuScreen;
@@ -53,7 +53,6 @@ import java.util.Objects;
 public final class CourseManagementApplication {
     private final Map<ScreenResult, Screen> screens;
     private final ConsolePrinter printer;
-    private final StudentSessionContext studentSessionContext;
 
     public CourseManagementApplication() {
         this(System.in, System.out);
@@ -62,7 +61,7 @@ public final class CourseManagementApplication {
     public CourseManagementApplication(InputStream inputStream, PrintStream printStream) {
         ConsoleInput input = new ConsoleInput(inputStream, printStream);
         this.printer = new ConsolePrinter(printStream);
-        this.studentSessionContext = new StudentSessionContext();
+        StudentSessionContext studentSessionContext = new StudentSessionContext();
         JdbcConnectionFactory connectionFactory = new JdbcConnectionFactory();
         AuthenticationService authenticationService = new JdbcAuthenticationService(new AdminAccountDao(connectionFactory),
                                                                                     new StudentAccountDao(connectionFactory));

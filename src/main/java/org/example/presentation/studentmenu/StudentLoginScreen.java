@@ -1,6 +1,9 @@
-package org.example.presentation;
+package org.example.presentation.studentmenu;
 
 import org.example.entity.StudentAccount;
+import org.example.presentation.AbstractMenuScreen;
+import org.example.presentation.ScreenResult;
+import org.example.presentation.StudentSessionContext;
 import org.example.utils.ConsoleInput;
 import org.example.utils.ConsolePrinter;
 import org.example.service.AuthenticationService;
