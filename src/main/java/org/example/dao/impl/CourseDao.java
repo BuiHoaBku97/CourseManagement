@@ -1,5 +1,7 @@
 package org.example.dao.impl;
 
+import org.example.common.Page;
+import org.example.common.PageRequest;
 import org.example.dao.ICourseDao;
 import org.example.entity.Course;
 import org.example.utils.JdbcConnectionFactory;
@@ -23,6 +25,14 @@ public final class CourseDao implements ICourseDao {
 
     public List<Course> findAll() {
         return queryCourses("SELECT id, name, duration, instructor, create_at FROM course ORDER BY id ASC");
+    }
+
+    public Page<Course> findAll(PageRequest request) {
+        List<Course> content =
+                queryCoursesPaged(
+                        "SELECT id, name, duration, instructor, create_at FROM course ORDER BY id ASC",
+                        request);
+        return new Page<>(content, request.page(), request.size(), countAll());
     }
 
     public Optional<Course> findById(int id) {
@@ -83,6 +93,33 @@ public final class CourseDao implements ICourseDao {
                 "%" + normalize(query) + "%");
     }
 
+    public long countSearchByName(String query) {
+        String sql = "SELECT COUNT(*) AS total FROM course WHERE LOWER(name) LIKE LOWER(?)";
+        String pattern = "%" + normalize(query) + "%";
+        try (Connection connection = connectionFactory.openConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, pattern);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return resultSet.next() ? resultSet.getLong("total") : 0L;
+            }
+        } catch (SQLException exception) {
+            throw new IllegalStateException("Khong the dem khoa hoc theo tu khoa.", exception);
+        }
+    }
+
+    public Page<Course> searchByName(String query, PageRequest request) {
+        String pattern = "%" + normalize(query) + "%";
+        List<Course> content =
+                queryCoursesPaged(
+                        "SELECT id, name, duration, instructor, create_at "
+                                + "FROM course "
+                                + "WHERE LOWER(name) LIKE LOWER(?) "
+                                + "ORDER BY id ASC",
+                        request,
+                        pattern);
+        return new Page<>(content, request.page(), request.size(), countSearchByName(query));
+    }
+
     public List<Course> sortByName(boolean ascending) {
         return queryCourses(
                 "SELECT id, name, duration, instructor, create_at "
@@ -90,10 +127,30 @@ public final class CourseDao implements ICourseDao {
                         + (ascending ? "ASC" : "DESC"));
     }
 
+    public Page<Course> sortByName(boolean ascending, PageRequest request) {
+        List<Course> content =
+                queryCoursesPaged(
+                        "SELECT id, name, duration, instructor, create_at "
+                                + "FROM course ORDER BY LOWER(name) "
+                                + (ascending ? "ASC" : "DESC"),
+                        request);
+        return new Page<>(content, request.page(), request.size(), countAll());
+    }
+
     public List<Course> sortById(boolean ascending) {
         return queryCourses(
                 "SELECT id, name, duration, instructor, create_at "
                         + "FROM course ORDER BY id " + (ascending ? "ASC" : "DESC"));
+    }
+
+    public Page<Course> sortById(boolean ascending, PageRequest request) {
+        List<Course> content =
+                queryCoursesPaged(
+                        "SELECT id, name, duration, instructor, create_at "
+                                + "FROM course ORDER BY id "
+                                + (ascending ? "ASC" : "DESC"),
+                        request);
+        return new Page<>(content, request.page(), request.size(), countAll());
     }
 
     public long countAll() {
@@ -144,6 +201,18 @@ public final class CourseDao implements ICourseDao {
         } catch (SQLException exception) {
             throw new IllegalStateException("Khong the doc du lieu khoa hoc.", exception);
         }
+    }
+
+    private List<Course> queryCoursesPaged(String sql, PageRequest request, Object... params) {
+        return queryCourses(sql + " LIMIT ? OFFSET ?", appendPagingParams(params, request));
+    }
+
+    private Object[] appendPagingParams(Object[] params, PageRequest request) {
+        Object[] pagingParams = new Object[params.length + 2];
+        System.arraycopy(params, 0, pagingParams, 0, params.length);
+        pagingParams[params.length] = request.size();
+        pagingParams[params.length + 1] = request.offset();
+        return pagingParams;
     }
 
     private Course mapCourse(ResultSet resultSet) throws SQLException {

@@ -1,5 +1,7 @@
 package org.example.service.admin;
 
+import org.example.common.Page;
+import org.example.common.PageRequest;
 import org.example.entity.Course;
 
 import java.time.LocalDate;
@@ -8,6 +10,8 @@ import java.util.Optional;
 
 public interface CourseService {
     List<Course> getAllCourses();
+
+    Page<Course> getCourses(PageRequest request);
 
     Optional<Course> findCourseById(int id);
 
@@ -25,7 +29,13 @@ public interface CourseService {
 
     List<Course> searchCoursesByName(String query);
 
+    Page<Course> searchCoursesByName(String query, PageRequest request);
+
     List<Course> sortCoursesByName(boolean ascending);
 
+    Page<Course> sortCoursesByName(boolean ascending, PageRequest request);
+
     List<Course> sortCoursesById(boolean ascending);
+
+    Page<Course> sortCoursesById(boolean ascending, PageRequest request);
 }

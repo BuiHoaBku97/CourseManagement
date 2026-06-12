@@ -1,5 +1,7 @@
 package org.example.service.admin.impl;
 
+import org.example.common.Page;
+import org.example.common.PageRequest;
 import org.example.dao.ICourseDao;
 import org.example.entity.Course;
 import org.example.service.admin.CourseService;
@@ -20,6 +22,11 @@ public final class JdbcCourseService implements CourseService {
     @Override
     public List<Course> getAllCourses() {
         return courseDao.findAll();
+    }
+
+    @Override
+    public Page<Course> getCourses(PageRequest request) {
+        return courseDao.findAll(request);
     }
 
     @Override
@@ -90,13 +97,29 @@ public final class JdbcCourseService implements CourseService {
     }
 
     @Override
+    public Page<Course> searchCoursesByName(String query, PageRequest request) {
+        validateText(query, "tu khoa tim kiem");
+        return courseDao.searchByName(query.trim(), request);
+    }
+
+    @Override
     public List<Course> sortCoursesByName(boolean ascending) {
         return courseDao.sortByName(ascending);
     }
 
     @Override
+    public Page<Course> sortCoursesByName(boolean ascending, PageRequest request) {
+        return courseDao.sortByName(ascending, request);
+    }
+
+    @Override
     public List<Course> sortCoursesById(boolean ascending) {
         return courseDao.sortById(ascending);
+    }
+
+    @Override
+    public Page<Course> sortCoursesById(boolean ascending, PageRequest request) {
+        return courseDao.sortById(ascending, request);
     }
 
     private void validateCourse(String name, int duration, String instructor) {

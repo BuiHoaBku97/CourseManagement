@@ -1,5 +1,7 @@
 package org.example.dao;
 
+import org.example.common.Page;
+import org.example.common.PageRequest;
 import org.example.entity.Course;
 
 import java.sql.Date;
@@ -8,6 +10,8 @@ import java.util.Optional;
 
 public interface ICourseDao {
     List<Course> findAll();
+
+    Page<Course> findAll(PageRequest request);
 
     Optional<Course> findById(int id);
 
@@ -25,9 +29,17 @@ public interface ICourseDao {
 
     List<Course> searchByName(String query);
 
+    long countSearchByName(String query);
+
+    Page<Course> searchByName(String query, PageRequest request);
+
     List<Course> sortByName(boolean ascending);
 
+    Page<Course> sortByName(boolean ascending, PageRequest request);
+
     List<Course> sortById(boolean ascending);
+
+    Page<Course> sortById(boolean ascending, PageRequest request);
 
     long countAll();
 }

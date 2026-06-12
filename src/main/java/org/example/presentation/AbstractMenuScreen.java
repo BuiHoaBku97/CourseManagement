@@ -1,5 +1,7 @@
 package org.example.presentation;
 
+import org.example.common.Page;
+import org.example.common.PageRequest;
 import org.example.utils.ConsoleInput;
 import org.example.utils.ConsolePrinter;
 import org.example.utils.InputValidator;
@@ -8,16 +10,19 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 public abstract class AbstractMenuScreen implements Screen {
     protected final ConsoleInput input;
     protected final ConsolePrinter printer;
     protected final FeatureScreen featureScreen;
+    private final PagedTablePresenter pagedTablePresenter;
 
     protected AbstractMenuScreen(ConsoleInput input, ConsolePrinter printer) {
         this.input = Objects.requireNonNull(input, "input");
         this.printer = Objects.requireNonNull(printer, "printer");
         this.featureScreen = new FeatureScreen(input, printer);
+        this.pagedTablePresenter = new PagedTablePresenter(input, printer);
     }
 
     protected void renderMenu(String title, List<String> options) {
@@ -52,6 +57,15 @@ public abstract class AbstractMenuScreen implements Screen {
     protected void showTable(String title, List<String> headers, List<List<String>> rows) {
         printer.printTable(title, headers, rows);
         input.pause("Nhan Enter de quay lai menu...");
+    }
+
+    protected <T> void showPagedTable(
+            String title,
+            List<String> headers,
+            String emptyMessage,
+            Function<PageRequest, Page<T>> pageLoader,
+            Function<T, List<String>> rowMapper) {
+        pagedTablePresenter.show(title, headers, emptyMessage, pageLoader, rowMapper);
     }
 
     protected int promptPositiveInt(String prompt) {

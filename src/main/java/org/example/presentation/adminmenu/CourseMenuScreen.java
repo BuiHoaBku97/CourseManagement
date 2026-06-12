@@ -1,5 +1,7 @@
 package org.example.presentation.adminmenu;
 
+import org.example.common.Page;
+import org.example.common.PageRequest;
 import org.example.entity.Course;
 import org.example.presentation.AbstractMenuScreen;
 import org.example.presentation.ScreenResult;
@@ -7,9 +9,9 @@ import org.example.service.admin.CourseService;
 import org.example.utils.ConsoleInput;
 import org.example.utils.ConsolePrinter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 public final class CourseMenuScreen extends AbstractMenuScreen {
     private final CourseService courseService;
@@ -38,7 +40,7 @@ public final class CourseMenuScreen extends AbstractMenuScreen {
                 case 0 -> {
                     return ScreenResult.ADMIN_MENU;
                 }
-                case 1 -> showCourses("DANH SACH KHOA HOC", courseService.getAllCourses(), "Chua co khoa hoc nao.");
+                case 1 -> showPagedCourses("DANH SACH KHOA HOC", courseService::getCourses, "Chua co khoa hoc nao.");
                 case 2 -> handleAddCourse();
                 case 3 -> {
                     return ScreenResult.COURSE_EDIT_MENU;
@@ -88,27 +90,17 @@ public final class CourseMenuScreen extends AbstractMenuScreen {
     private void handleSearchCourse() {
         try {
             String query = input.readRequiredLine("Nhap tu khoa tim kiem: ");
-            List<Course> courses = courseService.searchCoursesByName(query);
-            showCourses("TIM KIEM KHOA HOC THEO TEN", courses, "Khong tim thay khoa hoc phu hop.");
+            showPagedCourses(
+                    "TIM KIEM KHOA HOC THEO TEN",
+                    request -> courseService.searchCoursesByName(query, request),
+                    "Khong tim thay khoa hoc phu hop.");
         } catch (RuntimeException exception) {
             showMessagePlaceholder("TIM KIEM KHOA HOC THEO TEN", exception.getMessage());
         }
     }
 
-    private void showCourses(String title, List<Course> courses, String emptyMessage) {
-        List<List<String>> rows = new ArrayList<>();
-        for (Course course : courses) {
-            rows.add(
-                    List.of(
-                            String.valueOf(course.getId()),
-                            course.getName(),
-                            String.valueOf(course.getDuration()),
-                            course.getInstructor(),
-                            course.getCreatedAt().toString()));
-        }
-        if (rows.isEmpty()) {
-            rows.add(List.of(emptyMessage, "", "", "", ""));
-        }
-        showTable(title, List.of("ID", "Ten khoa hoc", "Thoi luong", "Giang vien", "Ngay them"), rows);
+    private void showPagedCourses(
+            String title, Function<PageRequest, Page<Course>> pageLoader, String emptyMessage) {
+        showPagedTable(title, CourseTableRows.HEADERS, emptyMessage, pageLoader, CourseTableRows::toRow);
     }
 }
