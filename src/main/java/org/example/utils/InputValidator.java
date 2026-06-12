@@ -1,6 +1,11 @@
 package org.example.utils;
 
+import java.util.regex.Pattern;
+
 public final class InputValidator {
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9_.]+@gmail\\.com$");
+    private static final Pattern PHONE_PATTERN = Pattern.compile("^0\\d{9}$");
+
     private InputValidator() {
     }
 
@@ -21,5 +26,23 @@ public final class InputValidator {
 
     public static boolean isInRange(int value, int minInclusive, int maxInclusive) {
         return value >= minInclusive && value <= maxInclusive;
+    }
+
+    public static boolean isValidEmail(String value) {
+        if (isBlank(value)) {
+            return false;
+        }
+        return EMAIL_PATTERN.matcher(value.trim()).matches();
+    }
+
+    public static boolean isValidPhone(String value) {
+        if (isBlank(value)) {
+            return false;
+        }
+        return PHONE_PATTERN.matcher(value.trim()).matches();
+    }
+
+    public static boolean isValidPhoneOrBlank(String value) {
+        return isBlank(value) || isValidPhone(value);
     }
 }

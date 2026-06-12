@@ -87,7 +87,7 @@ public final class StudentEditMenuScreen extends AbstractMenuScreen {
     private void handleEmailEdit() {
         int id = promptPositiveInt("Nhap id hoc vien: ");
         try {
-            String email = input.readRequiredLine("Nhap email moi: ");
+            String email = input.readRequiredLine("Nhap email moi (@gmail.com): ");
             Student updated = studentService.updateStudentEmail(id, email);
             showMessagePlaceholder("CHINH SUA HOC VIEN", "Da cap nhat email thanh: " + updated.getEmail());
         } catch (RuntimeException exception) {
@@ -98,7 +98,7 @@ public final class StudentEditMenuScreen extends AbstractMenuScreen {
     private void handlePhoneEdit() {
         int id = promptPositiveInt("Nhap id hoc vien: ");
         try {
-            String phone = input.readLine("Nhap so dien thoai moi: ");
+            String phone = input.readLine("Nhap so dien thoai moi (co the de trong, 10 chu so, bat dau bang 0): ");
             Student updated = studentService.updateStudentPhone(id, phone);
             showMessagePlaceholder("CHINH SUA HOC VIEN", "Da cap nhat so dien thoai cho hoc vien #" + updated.getId() + ".");
         } catch (RuntimeException exception) {

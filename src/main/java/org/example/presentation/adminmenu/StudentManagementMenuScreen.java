@@ -60,8 +60,8 @@ public final class StudentManagementMenuScreen extends AbstractMenuScreen {
             String name = input.readRequiredLine("Nhap ho ten: ");
             LocalDate dob = promptDate("Nhap ngay sinh (yyyy-MM-dd): ");
             boolean sex = promptYesNo("Chon gioi tinh", "Nam", "Nu");
-            String email = input.readRequiredLine("Nhap email: ");
-            String phone = input.readLine("Nhap so dien thoai (co the de trong): ");
+            String email = input.readRequiredLine("Nhap email (@gmail.com): ");
+            String phone = input.readLine("Nhap so dien thoai (co the de trong, 10 chu so, bat dau bang 0): ");
             String password = input.readRequiredLine("Nhap mat khau: ");
             Student student = studentService.addStudent(name, dob, sex, email, phone, password);
             showMessagePlaceholder(

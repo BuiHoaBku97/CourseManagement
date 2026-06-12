@@ -161,15 +161,21 @@ public final class JdbcStudentService implements org.example.service.student.Stu
     }
 
     private void validateEmail(String email) {
-        validateText(email, "email");
         String normalized = email.trim();
-        if (!normalized.contains("@") || !normalized.contains(".")) {
-            throw new IllegalArgumentException("Email khong hop le.");
+        if (!InputValidator.isValidEmail(normalized)) {
+            throw new IllegalArgumentException("Email khong hop le. Dinh dang: chi cho phep chu cai, chu so, '_' , '.' va ket thuc bang @gmail.com.");
         }
     }
 
     private String normalizePhone(String phone) {
-        return InputValidator.isBlank(phone) ? null : phone.trim();
+        if (InputValidator.isBlank(phone)) {
+            return null;
+        }
+        String normalized = phone.trim();
+        if (!InputValidator.isValidPhone(normalized)) {
+            throw new IllegalArgumentException("So dien thoai khong hop le. Co the de trong hoac phai gom 10 chu so va bat dau bang 0.");
+        }
+        return normalized;
     }
 
     private void ensureStudentExists(int id) {
