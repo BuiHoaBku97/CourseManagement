@@ -7,7 +7,6 @@ import org.example.service.admin.EnrollmentService;
 import org.example.utils.ConsoleInput;
 import org.example.utils.ConsolePrinter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -35,7 +34,9 @@ public final class EnrollmentMenuScreen extends AbstractMenuScreen {
                 case 0 -> {
                     return ScreenResult.ADMIN_MENU;
                 }
-                case 1 -> showEnrollments("DANH SACH DANG KY THEO KHOA HOC", enrollmentService.getAllRegistrations());
+                case 1 -> showPagedEnrollments(
+                        "DANH SACH DANG KY THEO KHOA HOC",
+                        enrollmentService::getAllRegistrations);
                 case 2 -> handleApprove();
                 case 3 -> handleCancel();
                 default -> {
@@ -46,7 +47,7 @@ public final class EnrollmentMenuScreen extends AbstractMenuScreen {
     }
 
     private void handleApprove() {
-        showEnrollments("DANH SACH DANG KY CHO DUYET", enrollmentService.getWaitingRegistrations());
+        showPagedEnrollments("DANH SACH DANG KY CHO DUYET", enrollmentService::getWaitingRegistrations);
         int id = promptPositiveInt("Nhap id dang ky can duyet: ");
         try {
             EnrollmentDetail detail = enrollmentService.approveEnrollment(id);
@@ -59,7 +60,7 @@ public final class EnrollmentMenuScreen extends AbstractMenuScreen {
     }
 
     private void handleCancel() {
-        showEnrollments("DANH SACH DANG KY", enrollmentService.getAllRegistrations());
+        showPagedEnrollments("DANH SACH DANG KY", enrollmentService::getAllRegistrations);
         int id = promptPositiveInt("Nhap id dang ky can xoa: ");
         try {
             EnrollmentDetail detail = enrollmentService.cancelEnrollment(id);
@@ -71,25 +72,9 @@ public final class EnrollmentMenuScreen extends AbstractMenuScreen {
         }
     }
 
-    private void showEnrollments(String title, List<EnrollmentDetail> details) {
-        List<List<String>> rows = new ArrayList<>();
-        for (EnrollmentDetail detail : details) {
-            rows.add(
-                    List.of(
-                            String.valueOf(detail.getId()),
-                            String.valueOf(detail.getCourseId()),
-                            detail.getCourseName(),
-                            String.valueOf(detail.getStudentId()),
-                            detail.getStudentName(),
-                            detail.getStatus().name(),
-                            detail.getRegisteredAt().toString()));
-        }
-        if (rows.isEmpty()) {
-            rows.add(List.of("Chua co du lieu", "", "", "", "", "", ""));
-        }
-        showTable(
-                title,
-                List.of("ID", "Course ID", "Ten khoa hoc", "Student ID", "Hoc vien", "Trang thai", "Ngay dang ky"),
-                rows);
+    private void showPagedEnrollments(
+            String title,
+            java.util.function.Function<org.example.common.PageRequest, org.example.common.Page<org.example.entity.EnrollmentDetail>> pageLoader) {
+        showPagedTable(title, EnrollmentTableRows.HEADERS, "Chua co du lieu", pageLoader, EnrollmentTableRows::toRow);
     }
 }

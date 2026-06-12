@@ -1,13 +1,11 @@
 package org.example.presentation.adminmenu;
 
-import org.example.entity.Student;
 import org.example.presentation.AbstractMenuScreen;
 import org.example.presentation.ScreenResult;
 import org.example.service.student.StudentService;
 import org.example.utils.ConsoleInput;
 import org.example.utils.ConsolePrinter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,10 +34,18 @@ public final class StudentSortMenuScreen extends AbstractMenuScreen {
                 case 0 -> {
                     return ScreenResult.STUDENT_MANAGEMENT_MENU;
                 }
-                case 1 -> showStudents("SAP XEP HOC VIEN - TEN TANG DAN", studentService.sortStudentsByName(true));
-                case 2 -> showStudents("SAP XEP HOC VIEN - TEN GIAM DAN", studentService.sortStudentsByName(false));
-                case 3 -> showStudents("SAP XEP HOC VIEN - ID TANG DAN", studentService.sortStudentsById(true));
-                case 4 -> showStudents("SAP XEP HOC VIEN - ID GIAM DAN", studentService.sortStudentsById(false));
+                case 1 -> showPagedStudents(
+                        "SAP XEP HOC VIEN - TEN TANG DAN",
+                        request -> studentService.sortStudentsByName(true, request));
+                case 2 -> showPagedStudents(
+                        "SAP XEP HOC VIEN - TEN GIAM DAN",
+                        request -> studentService.sortStudentsByName(false, request));
+                case 3 -> showPagedStudents(
+                        "SAP XEP HOC VIEN - ID TANG DAN",
+                        request -> studentService.sortStudentsById(true, request));
+                case 4 -> showPagedStudents(
+                        "SAP XEP HOC VIEN - ID GIAM DAN",
+                        request -> studentService.sortStudentsById(false, request));
                 default -> {
                     // Input validator already guards the range.
                 }
@@ -47,25 +53,9 @@ public final class StudentSortMenuScreen extends AbstractMenuScreen {
         }
     }
 
-    private void showStudents(String title, List<Student> students) {
-        List<List<String>> rows = new ArrayList<>();
-        for (Student student : students) {
-            rows.add(
-                    List.of(
-                            String.valueOf(student.getId()),
-                            student.getName(),
-                            student.getDob().toString(),
-                            student.isSex() ? "Nam" : "Nu",
-                            student.getEmail(),
-                            student.getPhone() == null ? "" : student.getPhone(),
-                            student.getCreatedAt().toString()));
-        }
-        if (rows.isEmpty()) {
-            rows.add(List.of("Chua co du lieu", "", "", "", "", "", ""));
-        }
-        showTable(
-                title,
-                List.of("ID", "Ho ten", "Ngay sinh", "Gioi tinh", "Email", "So dien thoai", "Ngay tao"),
-                rows);
+    private void showPagedStudents(
+            String title,
+            java.util.function.Function<org.example.common.PageRequest, org.example.common.Page<org.example.entity.Student>> pageLoader) {
+        showPagedTable(title, StudentTableRows.HEADERS, "Chua co du lieu", pageLoader, StudentTableRows::toRow);
     }
 }

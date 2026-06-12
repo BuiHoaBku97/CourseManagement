@@ -1,5 +1,7 @@
 package org.example.service.student.impl;
 
+import org.example.common.Page;
+import org.example.common.PageRequest;
 import org.example.dao.ICourseDao;
 import org.example.dao.IEnrollmentDao;
 import org.example.dao.IStudentDao;
@@ -46,11 +48,24 @@ public final class JdbcStudentPortalService implements org.example.service.stude
     }
 
     @Override
+    public Page<Course> getAvailableCourses(PageRequest request) {
+        return courseDao.findAll(request);
+    }
+
+    @Override
     public List<Course> searchCourses(String query) {
         if (InputValidator.isBlank(query)) {
             throw new IllegalArgumentException("Tu khoa tim kiem khong duoc de trong.");
         }
         return courseDao.searchByName(query);
+    }
+
+    @Override
+    public Page<Course> searchCourses(String query, PageRequest request) {
+        if (InputValidator.isBlank(query)) {
+            throw new IllegalArgumentException("Tu khoa tim kiem khong duoc de trong.");
+        }
+        return courseDao.searchByName(query, request);
     }
 
     @Override
@@ -79,15 +94,33 @@ public final class JdbcStudentPortalService implements org.example.service.stude
     }
 
     @Override
+    public Page<EnrollmentDetail> getRegisteredCourses(int studentId, PageRequest request) {
+        ensureStudentExists(studentId);
+        return enrollmentDao.findByStudentId(studentId, request);
+    }
+
+    @Override
     public List<EnrollmentDetail> sortRegisteredCoursesByCourseName(int studentId, boolean ascending) {
         ensureStudentExists(studentId);
         return enrollmentDao.findByStudentIdSortedByCourseName(studentId, ascending);
     }
 
     @Override
+    public Page<EnrollmentDetail> sortRegisteredCoursesByCourseName(int studentId, boolean ascending, PageRequest request) {
+        ensureStudentExists(studentId);
+        return enrollmentDao.findByStudentIdSortedByCourseName(studentId, ascending, request);
+    }
+
+    @Override
     public List<EnrollmentDetail> sortRegisteredCoursesByCourseId(int studentId, boolean ascending) {
         ensureStudentExists(studentId);
         return enrollmentDao.findByStudentIdSortedByCourseId(studentId, ascending);
+    }
+
+    @Override
+    public Page<EnrollmentDetail> sortRegisteredCoursesByCourseId(int studentId, boolean ascending, PageRequest request) {
+        ensureStudentExists(studentId);
+        return enrollmentDao.findByStudentIdSortedByCourseId(studentId, ascending, request);
     }
 
     @Override

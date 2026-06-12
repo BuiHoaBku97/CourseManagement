@@ -1,5 +1,7 @@
 package org.example.service.student.impl;
 
+import org.example.common.Page;
+import org.example.common.PageRequest;
 import org.example.dao.IStudentDao;
 import org.example.entity.Student;
 import org.example.utils.InputValidator;
@@ -20,6 +22,11 @@ public final class JdbcStudentService implements org.example.service.student.Stu
     @Override
     public List<Student> getAllStudents() {
         return studentDao.findAll();
+    }
+
+    @Override
+    public Page<Student> getStudents(PageRequest request) {
+        return studentDao.findAll(request);
     }
 
     @Override
@@ -113,13 +120,29 @@ public final class JdbcStudentService implements org.example.service.student.Stu
     }
 
     @Override
+    public Page<Student> searchStudents(String query, PageRequest request) {
+        validateText(query, "tu khoa tim kiem");
+        return studentDao.search(query.trim(), request);
+    }
+
+    @Override
     public List<Student> sortStudentsByName(boolean ascending) {
         return studentDao.sortByName(ascending);
     }
 
     @Override
+    public Page<Student> sortStudentsByName(boolean ascending, PageRequest request) {
+        return studentDao.sortByName(ascending, request);
+    }
+
+    @Override
     public List<Student> sortStudentsById(boolean ascending) {
         return studentDao.sortById(ascending);
+    }
+
+    @Override
+    public Page<Student> sortStudentsById(boolean ascending, PageRequest request) {
+        return studentDao.sortById(ascending, request);
     }
 
     private void validateStudent(String name, LocalDate dob, String email, String rawPassword) {

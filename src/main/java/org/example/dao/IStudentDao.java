@@ -1,5 +1,7 @@
 package org.example.dao;
 
+import org.example.common.Page;
+import org.example.common.PageRequest;
 import org.example.entity.Student;
 
 import java.time.LocalDate;
@@ -8,6 +10,8 @@ import java.util.Optional;
 
 public interface IStudentDao {
     List<Student> findAll();
+
+    Page<Student> findAll(PageRequest request);
 
     Optional<Student> findById(int id);
 
@@ -29,9 +33,15 @@ public interface IStudentDao {
 
     List<Student> search(String query);
 
+    Page<Student> search(String query, PageRequest request);
+
     List<Student> sortByName(boolean ascending);
 
+    Page<Student> sortByName(boolean ascending, PageRequest request);
+
     List<Student> sortById(boolean ascending);
+
+    Page<Student> sortById(boolean ascending, PageRequest request);
 
     long countAll();
 }

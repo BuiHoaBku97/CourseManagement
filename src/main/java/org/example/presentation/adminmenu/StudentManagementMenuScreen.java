@@ -8,7 +8,6 @@ import org.example.utils.ConsoleInput;
 import org.example.utils.ConsolePrinter;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -39,7 +38,7 @@ public final class StudentManagementMenuScreen extends AbstractMenuScreen {
                 case 0 -> {
                     return ScreenResult.ADMIN_MENU;
                 }
-                case 1 -> showStudents("DANH SACH HOC VIEN", studentService.getAllStudents(), "Chua co hoc vien nao.");
+                case 1 -> showPagedStudents("DANH SACH HOC VIEN", studentService::getStudents, "Chua co hoc vien nao.");
                 case 2 -> handleAddStudent();
                 case 3 -> {
                     return ScreenResult.STUDENT_EDIT_MENU;
@@ -92,32 +91,19 @@ public final class StudentManagementMenuScreen extends AbstractMenuScreen {
     private void handleSearchStudent() {
         try {
             String query = input.readRequiredLine("Nhap tu khoa tim kiem: ");
-            List<Student> students = studentService.searchStudents(query);
-            showStudents("TIM KIEM HOC VIEN", students, "Khong tim thay hoc vien phu hop.");
+            showPagedStudents(
+                    "TIM KIEM HOC VIEN",
+                    request -> studentService.searchStudents(query, request),
+                    "Khong tim thay hoc vien phu hop.");
         } catch (RuntimeException exception) {
             showMessagePlaceholder("TIM KIEM HOC VIEN", exception.getMessage());
         }
     }
 
-    private void showStudents(String title, List<Student> students, String emptyMessage) {
-        List<List<String>> rows = new ArrayList<>();
-        for (Student student : students) {
-            rows.add(
-                    List.of(
-                            String.valueOf(student.getId()),
-                            student.getName(),
-                            student.getDob().toString(),
-                            student.isSex() ? "Nam" : "Nu",
-                            student.getEmail(),
-                            String.valueOf(student.getPhone() == null ? "" : student.getPhone()),
-                            student.getCreatedAt().toString()));
-        }
-        if (rows.isEmpty()) {
-            rows.add(List.of(emptyMessage, "", "", "", "", "", ""));
-        }
-        showTable(
-                title,
-                List.of("ID", "Ho ten", "Ngay sinh", "Gioi tinh", "Email", "So dien thoai", "Ngay tao"),
-                rows);
+    private void showPagedStudents(
+            String title,
+            java.util.function.Function<org.example.common.PageRequest, org.example.common.Page<org.example.entity.Student>> pageLoader,
+            String emptyMessage) {
+        showPagedTable(title, StudentTableRows.HEADERS, emptyMessage, pageLoader, StudentTableRows::toRow);
     }
 }

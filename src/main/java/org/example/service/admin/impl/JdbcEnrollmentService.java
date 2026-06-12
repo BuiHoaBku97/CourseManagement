@@ -1,5 +1,7 @@
 package org.example.service.admin.impl;
 
+import org.example.common.Page;
+import org.example.common.PageRequest;
 import org.example.dao.IEnrollmentDao;
 import org.example.entity.EnrollmentDetail;
 import org.example.entity.EnrollmentStatus;
@@ -21,8 +23,18 @@ public final class JdbcEnrollmentService implements EnrollmentService {
     }
 
     @Override
+    public Page<EnrollmentDetail> getAllRegistrations(PageRequest request) {
+        return enrollmentDao.findAllDetails(request);
+    }
+
+    @Override
     public List<EnrollmentDetail> getWaitingRegistrations() {
         return enrollmentDao.findWaitingDetails();
+    }
+
+    @Override
+    public Page<EnrollmentDetail> getWaitingRegistrations(PageRequest request) {
+        return enrollmentDao.findWaitingDetails(request);
     }
 
     @Override

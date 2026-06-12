@@ -1,5 +1,7 @@
 package org.example.dao.impl;
 
+import org.example.common.Page;
+import org.example.common.PageRequest;
 import org.example.dao.IStudentDao;
 import org.example.entity.Student;
 import org.example.utils.JdbcConnectionFactory;
@@ -25,6 +27,15 @@ public final class StudentDao implements IStudentDao {
         return queryStudents(
                 "SELECT id, name, dob, sex, email, phone, password, create_at "
                         + "FROM student ORDER BY id ASC");
+    }
+
+    public Page<Student> findAll(PageRequest request) {
+        List<Student> content =
+                queryStudentsPaged(
+                        "SELECT id, name, dob, sex, email, phone, password, create_at "
+                                + "FROM student ORDER BY id ASC",
+                        request);
+        return new Page<>(content, request.page(), request.size(), countAll());
     }
 
     public Optional<Student> findById(int id) {
@@ -104,6 +115,23 @@ public final class StudentDao implements IStudentDao {
                 "%" + normalized + "%");
     }
 
+    public Page<Student> search(String query, PageRequest request) {
+        String normalized = normalize(query);
+        List<Student> content =
+                queryStudentsPaged(
+                        "SELECT id, name, dob, sex, email, phone, password, create_at "
+                                + "FROM student "
+                                + "WHERE LOWER(name) LIKE LOWER(?) "
+                                + "OR LOWER(email) LIKE LOWER(?) "
+                                + "OR CAST(id AS TEXT) LIKE ? "
+                                + "ORDER BY id ASC",
+                        request,
+                        "%" + normalized + "%",
+                        "%" + normalized + "%",
+                        "%" + normalized + "%");
+        return new Page<>(content, request.page(), request.size(), countSearch(query));
+    }
+
     public List<Student> sortByName(boolean ascending) {
         return queryStudents(
                 "SELECT id, name, dob, sex, email, phone, password, create_at "
@@ -111,10 +139,30 @@ public final class StudentDao implements IStudentDao {
                         + (ascending ? "ASC" : "DESC"));
     }
 
+    public Page<Student> sortByName(boolean ascending, PageRequest request) {
+        List<Student> content =
+                queryStudentsPaged(
+                        "SELECT id, name, dob, sex, email, phone, password, create_at "
+                                + "FROM student ORDER BY LOWER(name) "
+                                + (ascending ? "ASC" : "DESC"),
+                        request);
+        return new Page<>(content, request.page(), request.size(), countAll());
+    }
+
     public List<Student> sortById(boolean ascending) {
         return queryStudents(
                 "SELECT id, name, dob, sex, email, phone, password, create_at "
                         + "FROM student ORDER BY id " + (ascending ? "ASC" : "DESC"));
+    }
+
+    public Page<Student> sortById(boolean ascending, PageRequest request) {
+        List<Student> content =
+                queryStudentsPaged(
+                        "SELECT id, name, dob, sex, email, phone, password, create_at "
+                                + "FROM student ORDER BY id "
+                                + (ascending ? "ASC" : "DESC"),
+                        request);
+        return new Page<>(content, request.page(), request.size(), countAll());
     }
 
     public long countAll() {
@@ -164,6 +212,39 @@ public final class StudentDao implements IStudentDao {
             }
         } catch (SQLException exception) {
             throw new IllegalStateException("Khong the doc du lieu hoc vien.", exception);
+        }
+    }
+
+    private List<Student> queryStudentsPaged(String sql, PageRequest request, Object... params) {
+        return queryStudents(sql + " LIMIT ? OFFSET ?", appendPagingParams(params, request));
+    }
+
+    private Object[] appendPagingParams(Object[] params, PageRequest request) {
+        Object[] pagingParams = new Object[params.length + 2];
+        System.arraycopy(params, 0, pagingParams, 0, params.length);
+        pagingParams[params.length] = request.size();
+        pagingParams[params.length + 1] = request.offset();
+        return pagingParams;
+    }
+
+    private long countSearch(String query) {
+        String normalized = normalize(query);
+        String sql =
+                "SELECT COUNT(*) AS total FROM student "
+                        + "WHERE LOWER(name) LIKE LOWER(?) "
+                        + "OR LOWER(email) LIKE LOWER(?) "
+                        + "OR CAST(id AS TEXT) LIKE ?";
+        try (Connection connection = connectionFactory.openConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            String pattern = "%" + normalized + "%";
+            statement.setString(1, pattern);
+            statement.setString(2, pattern);
+            statement.setString(3, pattern);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return resultSet.next() ? resultSet.getLong("total") : 0L;
+            }
+        } catch (SQLException exception) {
+            throw new IllegalStateException("Khong the dem hoc vien theo tu khoa.", exception);
         }
     }
 
