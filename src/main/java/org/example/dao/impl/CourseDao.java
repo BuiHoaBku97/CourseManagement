@@ -4,6 +4,7 @@ import org.example.common.Page;
 import org.example.common.PageRequest;
 import org.example.dao.ICourseDao;
 import org.example.entity.Course;
+import org.example.entity.CourseTopicSpec;
 import org.example.utils.JdbcConnectionFactory;
 
 import java.sql.Connection;
@@ -43,21 +44,43 @@ public final class CourseDao implements ICourseDao {
     }
 
     public Course insert(String name, int duration, String instructor) {
+        return insert(name, duration, instructor, List.of());
+    }
+
+    @Override
+    public Course insert(String name, int duration, String instructor, List<CourseTopicSpec> topicSpecs) {
         String sql =
                 "INSERT INTO course (name, duration, instructor) VALUES (?, ?, ?) "
                         + "RETURNING id, name, duration, instructor, create_at";
-        try (Connection connection = connectionFactory.openConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, name);
-            statement.setInt(2, duration);
-            statement.setString(3, instructor);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (!resultSet.next()) {
-                    throw new IllegalStateException("Khong the tao khoa hoc.");
+        try (Connection connection = connectionFactory.openConnection()) {
+            connection.setAutoCommit(false);
+            try {
+                Course insertedCourse;
+                try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                    statement.setString(1, name);
+                    statement.setInt(2, duration);
+                    statement.setString(3, instructor);
+                    try (ResultSet resultSet = statement.executeQuery()) {
+                        if (!resultSet.next()) {
+                            throw new IllegalStateException("Khong the tao khoa hoc.");
+                        }
+                        insertedCourse = mapCourse(resultSet);
+                    }
                 }
-                int insertedId = resultSet.getInt("id");
-                return findById(insertedId)
-                        .orElseThrow(() -> new IllegalStateException("Khong the xac minh khoa hoc sau khi tao."));
+
+                for (CourseTopicSpec topicSpec : topicSpecs) {
+                    ensureTopicExists(connection, topicSpec.getTopicCode());
+                    insertCourseTopic(connection, insertedCourse.getId(), topicSpec);
+                }
+
+                connection.commit();
+                return insertedCourse;
+            } catch (SQLException exception) {
+                rollback(connection, exception);
+                throw new IllegalStateException("Khong the tao khoa hoc.", exception);
+            } catch (RuntimeException exception) {
+                rollbackQuietly(connection);
+                throw exception;
             }
         } catch (SQLException exception) {
             throw new IllegalStateException("Khong the tao khoa hoc.", exception);
@@ -161,6 +184,41 @@ public final class CourseDao implements ICourseDao {
             return resultSet.next() ? resultSet.getLong("total") : 0L;
         } catch (SQLException exception) {
             throw new IllegalStateException("Khong the dem khoa hoc.", exception);
+        }
+    }
+
+    private void ensureTopicExists(Connection connection, String topicCode) throws SQLException {
+        try (PreparedStatement statement =
+                connection.prepareStatement("INSERT INTO topic (topic_code) VALUES (?) ON CONFLICT DO NOTHING")) {
+            statement.setString(1, topicCode);
+            statement.executeUpdate();
+        }
+    }
+
+    private void insertCourseTopic(Connection connection, int courseId, CourseTopicSpec topicSpec) throws SQLException {
+        try (PreparedStatement statement =
+                connection.prepareStatement(
+                        "INSERT INTO course_topic (course_id, topic_code, level) VALUES (?, ?, ?) ON CONFLICT DO NOTHING")) {
+            statement.setInt(1, courseId);
+            statement.setString(2, topicSpec.getTopicCode());
+            statement.setInt(3, topicSpec.getLevel());
+            statement.executeUpdate();
+        }
+    }
+
+    private void rollback(Connection connection, SQLException exception) {
+        try {
+            connection.rollback();
+        } catch (SQLException rollbackException) {
+            exception.addSuppressed(rollbackException);
+        }
+    }
+
+    private void rollbackQuietly(Connection connection) {
+        try {
+            connection.rollback();
+        } catch (SQLException ignored) {
+            // Ignore rollback failure, original runtime exception will surface.
         }
     }
 

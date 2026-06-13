@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 public final class InputValidator {
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9_.]+@gmail\\.com$");
     private static final Pattern PHONE_PATTERN = Pattern.compile("^0\\d{9}$");
+    private static final Pattern COURSE_TOPIC_SPEC_PATTERN = Pattern.compile("^[A-Za-z0-9]+_[1-9][0-9]*$");
 
     private InputValidator() {
     }
@@ -44,5 +45,12 @@ public final class InputValidator {
 
     public static boolean isValidPhoneOrBlank(String value) {
         return isBlank(value) || isValidPhone(value);
+    }
+
+    public static boolean isValidCourseTopicSpec(String value) {
+        if (isBlank(value)) {
+            return false;
+        }
+        return COURSE_TOPIC_SPEC_PATTERN.matcher(value.trim()).matches();
     }
 }

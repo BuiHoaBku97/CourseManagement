@@ -3,6 +3,7 @@ package org.example.dao;
 import org.example.common.Page;
 import org.example.common.PageRequest;
 import org.example.entity.Course;
+import org.example.entity.CourseTopicSpec;
 
 import java.sql.Date;
 import java.util.List;
@@ -16,6 +17,10 @@ public interface ICourseDao {
     Optional<Course> findById(int id);
 
     Course insert(String name, int duration, String instructor);
+
+    default Course insert(String name, int duration, String instructor, List<CourseTopicSpec> topicSpecs) {
+        return insert(name, duration, instructor);
+    }
 
     boolean updateName(int id, String name);
 

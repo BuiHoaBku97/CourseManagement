@@ -25,6 +25,30 @@ CREATE TABLE course (
     create_at DATE NOT NULL DEFAULT CURRENT_DATE
 );
 
+CREATE TABLE topic (
+    topic_code VARCHAR(20) PRIMARY KEY
+);
+
+CREATE TABLE course_topic (
+    course_id INT NOT NULL,
+    topic_code VARCHAR(20) NOT NULL,
+    level INT NOT NULL,
+    CONSTRAINT pk_course_topic
+        PRIMARY KEY (course_id, topic_code),
+    CONSTRAINT fk_course_topic_course
+        FOREIGN KEY (course_id) REFERENCES course (id) ON DELETE CASCADE,
+    CONSTRAINT fk_course_topic_topic
+        FOREIGN KEY (topic_code) REFERENCES topic (topic_code) ON DELETE CASCADE,
+    CONSTRAINT chk_course_topic_level
+        CHECK (level > 0)
+);
+
+CREATE INDEX idx_course_topic_topic_code
+    ON course_topic (topic_code);
+
+CREATE INDEX idx_course_topic_topic_code_level
+    ON course_topic (topic_code, level);
+
 CREATE TYPE enrollment_status AS ENUM ('WAITING', 'DENIED', 'CANCEL', 'CONFIRM');
 
 CREATE TABLE enrollment (

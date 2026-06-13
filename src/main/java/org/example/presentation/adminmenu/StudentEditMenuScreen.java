@@ -21,6 +21,15 @@ public final class StudentEditMenuScreen extends AbstractMenuScreen {
 
     @Override
     public ScreenResult show() {
+        Integer studentId = promptPositiveIntOrCancel("Nhap id hoc vien can chinh sua: ");
+        if (studentId == null) {
+            printer.printMessage("Da huy thao tac chinh sua hoc vien.");
+            return ScreenResult.STUDENT_MANAGEMENT_MENU;
+        }
+        if (studentService.findStudentById(studentId).isEmpty()) {
+            printer.printMessage("Khong tim thay hoc vien voi id " + studentId + ".");
+            return ScreenResult.STUDENT_MANAGEMENT_MENU;
+        }
         while (true) {
             int choice = promptChoice(
                     "CHINH SUA HOC VIEN",
@@ -38,12 +47,12 @@ public final class StudentEditMenuScreen extends AbstractMenuScreen {
                 case 0 -> {
                     return ScreenResult.STUDENT_MANAGEMENT_MENU;
                 }
-                case 1 -> handleNameEdit();
-                case 2 -> handleDobEdit();
-                case 3 -> handleSexEdit();
-                case 4 -> handleEmailEdit();
-                case 5 -> handlePhoneEdit();
-                case 6 -> handlePasswordEdit();
+                case 1 -> handleNameEdit(studentId);
+                case 2 -> handleDobEdit(studentId);
+                case 3 -> handleSexEdit(studentId);
+                case 4 -> handleEmailEdit(studentId);
+                case 5 -> handlePhoneEdit(studentId);
+                case 6 -> handlePasswordEdit(studentId);
                 default -> {
                     // Input validator already guards the range.
                 }
@@ -51,12 +60,7 @@ public final class StudentEditMenuScreen extends AbstractMenuScreen {
         }
     }
 
-    private void handleNameEdit() {
-        Integer id = promptPositiveIntOrCancel("Nhap id hoc vien: ");
-        if (id == null) {
-            showMessagePlaceholder("CHINH SUA HOC VIEN", "Da huy thao tac chinh sua hoc vien.");
-            return;
-        }
+    private void handleNameEdit(int id) {
         try {
             String name = promptRequiredLineOrCancel("Nhap ho ten moi: ");
             if (name == null) {
@@ -70,12 +74,7 @@ public final class StudentEditMenuScreen extends AbstractMenuScreen {
         }
     }
 
-    private void handleDobEdit() {
-        Integer id = promptPositiveIntOrCancel("Nhap id hoc vien: ");
-        if (id == null) {
-            showMessagePlaceholder("CHINH SUA HOC VIEN", "Da huy thao tac chinh sua hoc vien.");
-            return;
-        }
+    private void handleDobEdit(int id) {
         try {
             LocalDate dob = promptDateOrCancel("Nhap ngay sinh moi (yyyy-MM-dd): ");
             if (dob == null) {
@@ -89,12 +88,7 @@ public final class StudentEditMenuScreen extends AbstractMenuScreen {
         }
     }
 
-    private void handleSexEdit() {
-        Integer id = promptPositiveIntOrCancel("Nhap id hoc vien: ");
-        if (id == null) {
-            showMessagePlaceholder("CHINH SUA HOC VIEN", "Da huy thao tac chinh sua hoc vien.");
-            return;
-        }
+    private void handleSexEdit(int id) {
         try {
             Boolean sex = promptYesNoOrCancel("Gioi tinh moi", "Nam", "Nu", false);
             if (sex == null) {
@@ -108,12 +102,7 @@ public final class StudentEditMenuScreen extends AbstractMenuScreen {
         }
     }
 
-    private void handleEmailEdit() {
-        Integer id = promptPositiveIntOrCancel("Nhap id hoc vien: ");
-        if (id == null) {
-            showMessagePlaceholder("CHINH SUA HOC VIEN", "Da huy thao tac chinh sua hoc vien.");
-            return;
-        }
+    private void handleEmailEdit(int id) {
         try {
             String email = promptEmailOrCancel("Nhap email moi (@gmail.com): ");
             if (email == null) {
@@ -127,12 +116,7 @@ public final class StudentEditMenuScreen extends AbstractMenuScreen {
         }
     }
 
-    private void handlePhoneEdit() {
-        Integer id = promptPositiveIntOrCancel("Nhap id hoc vien: ");
-        if (id == null) {
-            showMessagePlaceholder("CHINH SUA HOC VIEN", "Da huy thao tac chinh sua hoc vien.");
-            return;
-        }
+    private void handlePhoneEdit(int id) {
         try {
             String phone = promptPhoneOrCancel("Nhap so dien thoai moi (co the de trong, 10 chu so, bat dau bang 0): ");
             if (phone == null) {
@@ -146,12 +130,7 @@ public final class StudentEditMenuScreen extends AbstractMenuScreen {
         }
     }
 
-    private void handlePasswordEdit() {
-        Integer id = promptPositiveIntOrCancel("Nhap id hoc vien: ");
-        if (id == null) {
-            showMessagePlaceholder("CHINH SUA HOC VIEN", "Da huy thao tac chinh sua hoc vien.");
-            return;
-        }
+    private void handlePasswordEdit(int id) {
         try {
             String password = promptRequiredLineOrCancel("Nhap mat khau moi: ");
             if (password == null) {

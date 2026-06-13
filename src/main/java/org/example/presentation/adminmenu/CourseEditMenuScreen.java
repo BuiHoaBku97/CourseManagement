@@ -20,6 +20,15 @@ public final class CourseEditMenuScreen extends AbstractMenuScreen {
 
     @Override
     public ScreenResult show() {
+        Integer courseId = promptPositiveIntOrCancel("Nhap id khoa hoc can chinh sua: ");
+        if (courseId == null) {
+            printer.printMessage("Da huy thao tac chinh sua khoa hoc.");
+            return ScreenResult.COURSE_MENU;
+        }
+        if (courseService.findCourseById(courseId).isEmpty()) {
+            printer.printMessage("Khong tim thay khoa hoc voi id " + courseId + ".");
+            return ScreenResult.COURSE_MENU;
+        }
         while (true) {
             int choice = promptChoice(
                     "CHINH SUA KHOA HOC",
@@ -35,10 +44,10 @@ public final class CourseEditMenuScreen extends AbstractMenuScreen {
                 case 0 -> {
                     return ScreenResult.COURSE_MENU;
                 }
-                case 1 -> handleNameEdit();
-                case 2 -> handleDurationEdit();
-                case 3 -> handleInstructorEdit();
-                case 4 -> handleCreatedAtEdit();
+                case 1 -> handleNameEdit(courseId);
+                case 2 -> handleDurationEdit(courseId);
+                case 3 -> handleInstructorEdit(courseId);
+                case 4 -> handleCreatedAtEdit(courseId);
                 default -> {
                     // Input validator already guards the range.
                 }
@@ -46,12 +55,7 @@ public final class CourseEditMenuScreen extends AbstractMenuScreen {
         }
     }
 
-    private void handleNameEdit() {
-        Integer id = promptPositiveIntOrCancel("Nhap id khoa hoc: ");
-        if (id == null) {
-            showMessagePlaceholder("CHINH SUA KHOA HOC", "Da huy thao tac chinh sua khoa hoc.");
-            return;
-        }
+    private void handleNameEdit(int id) {
         try {
             String newName = promptRequiredLineOrCancel("Nhap ten moi: ");
             if (newName == null) {
@@ -65,12 +69,7 @@ public final class CourseEditMenuScreen extends AbstractMenuScreen {
         }
     }
 
-    private void handleDurationEdit() {
-        Integer id = promptPositiveIntOrCancel("Nhap id khoa hoc: ");
-        if (id == null) {
-            showMessagePlaceholder("CHINH SUA KHOA HOC", "Da huy thao tac chinh sua khoa hoc.");
-            return;
-        }
+    private void handleDurationEdit(int id) {
         try {
             Integer newDuration = promptPositiveIntOrCancel("Nhap thoi luong moi (gio): ");
             if (newDuration == null) {
@@ -84,12 +83,7 @@ public final class CourseEditMenuScreen extends AbstractMenuScreen {
         }
     }
 
-    private void handleInstructorEdit() {
-        Integer id = promptPositiveIntOrCancel("Nhap id khoa hoc: ");
-        if (id == null) {
-            showMessagePlaceholder("CHINH SUA KHOA HOC", "Da huy thao tac chinh sua khoa hoc.");
-            return;
-        }
+    private void handleInstructorEdit(int id) {
         try {
             String instructor = promptRequiredLineOrCancel("Nhap giang vien moi: ");
             if (instructor == null) {
@@ -103,12 +97,7 @@ public final class CourseEditMenuScreen extends AbstractMenuScreen {
         }
     }
 
-    private void handleCreatedAtEdit() {
-        Integer id = promptPositiveIntOrCancel("Nhap id khoa hoc: ");
-        if (id == null) {
-            showMessagePlaceholder("CHINH SUA KHOA HOC", "Da huy thao tac chinh sua khoa hoc.");
-            return;
-        }
+    private void handleCreatedAtEdit(int id) {
         try {
             java.time.LocalDate createdAt = promptDateOrCancel("Nhap ngay them moi (yyyy-MM-dd): ");
             if (createdAt == null) {

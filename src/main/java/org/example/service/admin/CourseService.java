@@ -3,6 +3,7 @@ package org.example.service.admin;
 import org.example.common.Page;
 import org.example.common.PageRequest;
 import org.example.entity.Course;
+import org.example.entity.CourseTopicSpec;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -16,6 +17,10 @@ public interface CourseService {
     Optional<Course> findCourseById(int id);
 
     Course addCourse(String name, int duration, String instructor);
+
+    default Course addCourse(String name, int duration, String instructor, List<CourseTopicSpec> topics) {
+        return addCourse(name, duration, instructor);
+    }
 
     Course updateCourseName(int id, String name);
 

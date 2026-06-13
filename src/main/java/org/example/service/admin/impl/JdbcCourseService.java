@@ -4,10 +4,13 @@ import org.example.common.Page;
 import org.example.common.PageRequest;
 import org.example.dao.ICourseDao;
 import org.example.entity.Course;
+import org.example.entity.CourseTopicSpec;
 import org.example.service.admin.CourseService;
 import org.example.utils.InputValidator;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -38,6 +41,13 @@ public final class JdbcCourseService implements CourseService {
     public Course addCourse(String name, int duration, String instructor) {
         validateCourse(name, duration, instructor);
         return courseDao.insert(name.trim(), duration, instructor.trim());
+    }
+
+    @Override
+    public Course addCourse(String name, int duration, String instructor, List<CourseTopicSpec> topics) {
+        validateCourse(name, duration, instructor);
+        List<CourseTopicSpec> normalizedTopics = normalizeTopics(topics);
+        return courseDao.insert(name.trim(), duration, instructor.trim(), normalizedTopics);
     }
 
     @Override
@@ -134,6 +144,23 @@ public final class JdbcCourseService implements CourseService {
         if (InputValidator.isBlank(value)) {
             throw new IllegalArgumentException("Truong " + fieldName + " khong duoc de trong.");
         }
+    }
+
+    private List<CourseTopicSpec> normalizeTopics(List<CourseTopicSpec> topics) {
+        if (topics == null || topics.isEmpty()) {
+            throw new IllegalArgumentException("Danh sach topic khong duoc de trong.");
+        }
+        LinkedHashMap<String, CourseTopicSpec> uniqueTopics = new LinkedHashMap<>();
+        for (CourseTopicSpec topic : topics) {
+            if (topic == null) {
+                throw new IllegalArgumentException("Topic khong hop le.");
+            }
+            uniqueTopics.putIfAbsent(topic.getTopicCode(), topic);
+        }
+        if (uniqueTopics.isEmpty()) {
+            throw new IllegalArgumentException("Danh sach topic khong duoc de trong.");
+        }
+        return new ArrayList<>(uniqueTopics.values());
     }
 
     private void ensureCourseExists(int id) {
