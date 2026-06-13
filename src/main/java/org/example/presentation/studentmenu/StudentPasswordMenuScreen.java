@@ -33,13 +33,25 @@ public final class StudentPasswordMenuScreen extends AbstractMenuScreen {
 
     private void handleChangePassword(int studentId) {
         try {
-            String currentPassword = input.readRequiredLine("Nhap mat khau hien tai: ");
+            String currentPassword = promptRequiredLineOrCancel("Nhap mat khau hien tai: ");
+            if (currentPassword == null) {
+                showMessagePlaceholder("CAP NHAT MAT KHAU", "Da huy thao tac doi mat khau.");
+                return;
+            }
             studentPortalService.validateCurrentPassword(studentId, currentPassword);
-            String newPassword = input.readRequiredLine("Nhap mat khau moi: ");
+            String newPassword = promptRequiredLineOrCancel("Nhap mat khau moi: ");
+            if (newPassword == null) {
+                showMessagePlaceholder("CAP NHAT MAT KHAU", "Da huy thao tac doi mat khau.");
+                return;
+            }
             studentPortalService.validateNewPassword(newPassword);
             studentPortalService.requestPasswordChangeOtp(studentId);
             printer.printMessage("Ma OTP da duoc gui den email dang ky.");
-            String inputOtp = input.readRequiredLine("Nhap ma OTP: ");
+            String inputOtp = promptRequiredLineOrCancel("Nhap ma OTP: ");
+            if (inputOtp == null) {
+                showMessagePlaceholder("CAP NHAT MAT KHAU", "Da huy thao tac doi mat khau.");
+                return;
+            }
             studentPortalService.updatePassword(studentId, inputOtp, currentPassword, newPassword);
             showMessagePlaceholder("CAP NHAT MAT KHAU", "Da cap nhat mat khau thanh cong.");
         } catch (RuntimeException exception) {

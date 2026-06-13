@@ -52,9 +52,17 @@ public final class StudentEditMenuScreen extends AbstractMenuScreen {
     }
 
     private void handleNameEdit() {
-        int id = promptPositiveInt("Nhap id hoc vien: ");
+        Integer id = promptPositiveIntOrCancel("Nhap id hoc vien: ");
+        if (id == null) {
+            showMessagePlaceholder("CHINH SUA HOC VIEN", "Da huy thao tac chinh sua hoc vien.");
+            return;
+        }
         try {
-            String name = input.readRequiredLine("Nhap ho ten moi: ");
+            String name = promptRequiredLineOrCancel("Nhap ho ten moi: ");
+            if (name == null) {
+                showMessagePlaceholder("CHINH SUA HOC VIEN", "Da huy thao tac chinh sua hoc vien.");
+                return;
+            }
             Student updated = studentService.updateStudentName(id, name);
             showMessagePlaceholder("CHINH SUA HOC VIEN", "Da cap nhat ho ten thanh: " + updated.getName());
         } catch (RuntimeException exception) {
@@ -63,9 +71,17 @@ public final class StudentEditMenuScreen extends AbstractMenuScreen {
     }
 
     private void handleDobEdit() {
-        int id = promptPositiveInt("Nhap id hoc vien: ");
+        Integer id = promptPositiveIntOrCancel("Nhap id hoc vien: ");
+        if (id == null) {
+            showMessagePlaceholder("CHINH SUA HOC VIEN", "Da huy thao tac chinh sua hoc vien.");
+            return;
+        }
         try {
-            LocalDate dob = promptDate("Nhap ngay sinh moi (yyyy-MM-dd): ");
+            LocalDate dob = promptDateOrCancel("Nhap ngay sinh moi (yyyy-MM-dd): ");
+            if (dob == null) {
+                showMessagePlaceholder("CHINH SUA HOC VIEN", "Da huy thao tac chinh sua hoc vien.");
+                return;
+            }
             Student updated = studentService.updateStudentDob(id, dob);
             showMessagePlaceholder("CHINH SUA HOC VIEN", "Da cap nhat ngay sinh cho hoc vien #" + updated.getId() + ".");
         } catch (RuntimeException exception) {
@@ -74,9 +90,17 @@ public final class StudentEditMenuScreen extends AbstractMenuScreen {
     }
 
     private void handleSexEdit() {
-        int id = promptPositiveInt("Nhap id hoc vien: ");
+        Integer id = promptPositiveIntOrCancel("Nhap id hoc vien: ");
+        if (id == null) {
+            showMessagePlaceholder("CHINH SUA HOC VIEN", "Da huy thao tac chinh sua hoc vien.");
+            return;
+        }
         try {
-            boolean sex = promptYesNo("Chon gioi tinh moi", "Nam", "Nu");
+            Boolean sex = promptYesNoOrCancel("Gioi tinh moi", "Nam", "Nu", false);
+            if (sex == null) {
+                showMessagePlaceholder("CHINH SUA HOC VIEN", "Da huy thao tac chinh sua hoc vien.");
+                return;
+            }
             Student updated = studentService.updateStudentSex(id, sex);
             showMessagePlaceholder("CHINH SUA HOC VIEN", "Da cap nhat gioi tinh cho hoc vien #" + updated.getId() + ".");
         } catch (RuntimeException exception) {
@@ -85,9 +109,17 @@ public final class StudentEditMenuScreen extends AbstractMenuScreen {
     }
 
     private void handleEmailEdit() {
-        int id = promptPositiveInt("Nhap id hoc vien: ");
+        Integer id = promptPositiveIntOrCancel("Nhap id hoc vien: ");
+        if (id == null) {
+            showMessagePlaceholder("CHINH SUA HOC VIEN", "Da huy thao tac chinh sua hoc vien.");
+            return;
+        }
         try {
-            String email = input.readRequiredLine("Nhap email moi (@gmail.com): ");
+            String email = promptEmailOrCancel("Nhap email moi (@gmail.com): ");
+            if (email == null) {
+                showMessagePlaceholder("CHINH SUA HOC VIEN", "Da huy thao tac chinh sua hoc vien.");
+                return;
+            }
             Student updated = studentService.updateStudentEmail(id, email);
             showMessagePlaceholder("CHINH SUA HOC VIEN", "Da cap nhat email thanh: " + updated.getEmail());
         } catch (RuntimeException exception) {
@@ -96,9 +128,17 @@ public final class StudentEditMenuScreen extends AbstractMenuScreen {
     }
 
     private void handlePhoneEdit() {
-        int id = promptPositiveInt("Nhap id hoc vien: ");
+        Integer id = promptPositiveIntOrCancel("Nhap id hoc vien: ");
+        if (id == null) {
+            showMessagePlaceholder("CHINH SUA HOC VIEN", "Da huy thao tac chinh sua hoc vien.");
+            return;
+        }
         try {
-            String phone = input.readLine("Nhap so dien thoai moi (co the de trong, 10 chu so, bat dau bang 0): ");
+            String phone = promptPhoneOrCancel("Nhap so dien thoai moi (co the de trong, 10 chu so, bat dau bang 0): ");
+            if (phone == null) {
+                showMessagePlaceholder("CHINH SUA HOC VIEN", "Da huy thao tac chinh sua hoc vien.");
+                return;
+            }
             Student updated = studentService.updateStudentPhone(id, phone);
             showMessagePlaceholder("CHINH SUA HOC VIEN", "Da cap nhat so dien thoai cho hoc vien #" + updated.getId() + ".");
         } catch (RuntimeException exception) {
@@ -107,9 +147,17 @@ public final class StudentEditMenuScreen extends AbstractMenuScreen {
     }
 
     private void handlePasswordEdit() {
-        int id = promptPositiveInt("Nhap id hoc vien: ");
+        Integer id = promptPositiveIntOrCancel("Nhap id hoc vien: ");
+        if (id == null) {
+            showMessagePlaceholder("CHINH SUA HOC VIEN", "Da huy thao tac chinh sua hoc vien.");
+            return;
+        }
         try {
-            String password = input.readRequiredLine("Nhap mat khau moi: ");
+            String password = promptRequiredLineOrCancel("Nhap mat khau moi: ");
+            if (password == null) {
+                showMessagePlaceholder("CHINH SUA HOC VIEN", "Da huy thao tac chinh sua hoc vien.");
+                return;
+            }
             Student updated = studentService.updateStudentPassword(id, password);
             showMessagePlaceholder("CHINH SUA HOC VIEN", "Da cap nhat mat khau cho hoc vien #" + updated.getId() + ".");
         } catch (RuntimeException exception) {

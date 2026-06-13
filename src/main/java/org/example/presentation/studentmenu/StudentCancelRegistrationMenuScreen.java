@@ -28,7 +28,11 @@ public final class StudentCancelRegistrationMenuScreen extends AbstractMenuScree
     @Override
     public ScreenResult show() {
         StudentAccount currentStudent = requireCurrentStudent();
-        int courseId = promptPositiveInt("Nhap id khoa hoc can huy dang ky: ");
+        Integer courseId = promptPositiveIntOrCancel("Nhap id khoa hoc can huy dang ky: ");
+        if (courseId == null) {
+            showMessagePlaceholder("HUY DANG KY KHOA HOC", "Da huy thao tac huy dang ky.");
+            return ScreenResult.STUDENT_MENU;
+        }
         try {
             EnrollmentDetail detail = studentPortalService.cancelRegistration(currentStudent.getId(), courseId);
             showMessagePlaceholder(

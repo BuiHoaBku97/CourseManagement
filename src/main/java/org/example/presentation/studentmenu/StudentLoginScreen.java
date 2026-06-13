@@ -33,8 +33,14 @@ public final class StudentLoginScreen extends AbstractMenuScreen {
         }
 
         while (true) {
-            String loginId = input.readRequiredLine("Email hoac so dien thoai: ");
-            String password = input.readRequiredLine("Mat khau: ");
+            String loginId = promptRequiredLineOrCancel("Email hoac so dien thoai: ");
+            if (loginId == null) {
+                return ScreenResult.STARTUP;
+            }
+            String password = promptRequiredLineOrCancel("Mat khau: ");
+            if (password == null) {
+                return ScreenResult.STARTUP;
+            }
 
             try {
                 StudentAccount studentAccount =

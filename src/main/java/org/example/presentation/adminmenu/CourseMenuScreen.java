@@ -59,9 +59,21 @@ public final class CourseMenuScreen extends AbstractMenuScreen {
 
     private void handleAddCourse() {
         try {
-            String name = input.readRequiredLine("Nhap ten khoa hoc: ");
-            int duration = promptPositiveInt("Nhap thoi luong (so gio): ");
-            String instructor = input.readRequiredLine("Nhap giang vien: ");
+            String name = promptRequiredLineOrCancel("Nhap ten khoa hoc: ");
+            if (name == null) {
+                showMessagePlaceholder("THEM MOI KHOA HOC", "Da huy thao tac them khoa hoc.");
+                return;
+            }
+            Integer duration = promptPositiveIntOrCancel("Nhap thoi luong (so gio): ");
+            if (duration == null) {
+                showMessagePlaceholder("THEM MOI KHOA HOC", "Da huy thao tac them khoa hoc.");
+                return;
+            }
+            String instructor = promptRequiredLineOrCancel("Nhap giang vien: ");
+            if (instructor == null) {
+                showMessagePlaceholder("THEM MOI KHOA HOC", "Da huy thao tac them khoa hoc.");
+                return;
+            }
             Course course = courseService.addCourse(name, duration, instructor);
             showMessagePlaceholder(
                     "THEM MOI KHOA HOC",
@@ -72,7 +84,11 @@ public final class CourseMenuScreen extends AbstractMenuScreen {
     }
 
     private void handleDeleteCourse() {
-        int id = promptPositiveInt("Nhap id khoa hoc can xoa: ");
+        Integer id = promptPositiveIntOrCancel("Nhap id khoa hoc can xoa: ");
+        if (id == null) {
+            showMessagePlaceholder("XOA KHOA HOC THEO ID", "Da huy thao tac xoa khoa hoc.");
+            return;
+        }
         try {
             Course course = courseService.findCourseById(id)
                     .orElseThrow(() -> new IllegalStateException("Khong tim thay khoa hoc voi id " + id + "."));
@@ -89,7 +105,11 @@ public final class CourseMenuScreen extends AbstractMenuScreen {
 
     private void handleSearchCourse() {
         try {
-            String query = input.readRequiredLine("Nhap tu khoa tim kiem: ");
+            String query = promptRequiredLineOrCancel("Nhap tu khoa tim kiem: ");
+            if (query == null) {
+                showMessagePlaceholder("TIM KIEM KHOA HOC THEO TEN", "Da huy thao tac tim kiem khoa hoc.");
+                return;
+            }
             showPagedCourses(
                     "TIM KIEM KHOA HOC THEO TEN",
                     request -> courseService.searchCoursesByName(query, request),

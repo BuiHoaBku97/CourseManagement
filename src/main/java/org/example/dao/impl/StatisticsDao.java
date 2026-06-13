@@ -53,6 +53,7 @@ public final class StatisticsDao implements IStatisticsDao {
                         + "FROM course c "
                         + "LEFT JOIN enrollment e ON e.course_id = c.id AND e.status = 'CONFIRM' "
                         + "GROUP BY c.id, c.name "
+                        + "HAVING COUNT(e.id) > 0 "
                         + "ORDER BY student_count DESC, c.name ASC "
                         + "LIMIT 5";
         return queryStats(sql);

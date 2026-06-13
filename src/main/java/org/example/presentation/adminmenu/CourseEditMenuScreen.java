@@ -47,9 +47,17 @@ public final class CourseEditMenuScreen extends AbstractMenuScreen {
     }
 
     private void handleNameEdit() {
-        int id = promptPositiveInt("Nhap id khoa hoc: ");
+        Integer id = promptPositiveIntOrCancel("Nhap id khoa hoc: ");
+        if (id == null) {
+            showMessagePlaceholder("CHINH SUA KHOA HOC", "Da huy thao tac chinh sua khoa hoc.");
+            return;
+        }
         try {
-            String newName = input.readRequiredLine("Nhap ten moi: ");
+            String newName = promptRequiredLineOrCancel("Nhap ten moi: ");
+            if (newName == null) {
+                showMessagePlaceholder("CHINH SUA KHOA HOC", "Da huy thao tac chinh sua khoa hoc.");
+                return;
+            }
             Course updated = courseService.updateCourseName(id, newName);
             showMessagePlaceholder("CHINH SUA KHOA HOC", "Da cap nhat ten khoa hoc thanh: " + updated.getName());
         } catch (RuntimeException exception) {
@@ -58,9 +66,17 @@ public final class CourseEditMenuScreen extends AbstractMenuScreen {
     }
 
     private void handleDurationEdit() {
-        int id = promptPositiveInt("Nhap id khoa hoc: ");
+        Integer id = promptPositiveIntOrCancel("Nhap id khoa hoc: ");
+        if (id == null) {
+            showMessagePlaceholder("CHINH SUA KHOA HOC", "Da huy thao tac chinh sua khoa hoc.");
+            return;
+        }
         try {
-            int newDuration = promptPositiveInt("Nhap thoi luong moi (gio): ");
+            Integer newDuration = promptPositiveIntOrCancel("Nhap thoi luong moi (gio): ");
+            if (newDuration == null) {
+                showMessagePlaceholder("CHINH SUA KHOA HOC", "Da huy thao tac chinh sua khoa hoc.");
+                return;
+            }
             Course updated = courseService.updateCourseDuration(id, newDuration);
             showMessagePlaceholder("CHINH SUA KHOA HOC", "Da cap nhat thoi luong khoa hoc #" + updated.getId() + ".");
         } catch (RuntimeException exception) {
@@ -69,9 +85,17 @@ public final class CourseEditMenuScreen extends AbstractMenuScreen {
     }
 
     private void handleInstructorEdit() {
-        int id = promptPositiveInt("Nhap id khoa hoc: ");
+        Integer id = promptPositiveIntOrCancel("Nhap id khoa hoc: ");
+        if (id == null) {
+            showMessagePlaceholder("CHINH SUA KHOA HOC", "Da huy thao tac chinh sua khoa hoc.");
+            return;
+        }
         try {
-            String instructor = input.readRequiredLine("Nhap giang vien moi: ");
+            String instructor = promptRequiredLineOrCancel("Nhap giang vien moi: ");
+            if (instructor == null) {
+                showMessagePlaceholder("CHINH SUA KHOA HOC", "Da huy thao tac chinh sua khoa hoc.");
+                return;
+            }
             Course updated = courseService.updateCourseInstructor(id, instructor);
             showMessagePlaceholder("CHINH SUA KHOA HOC", "Da cap nhat giang vien cho khoa hoc #" + updated.getId() + ".");
         } catch (RuntimeException exception) {
@@ -80,9 +104,17 @@ public final class CourseEditMenuScreen extends AbstractMenuScreen {
     }
 
     private void handleCreatedAtEdit() {
-        int id = promptPositiveInt("Nhap id khoa hoc: ");
+        Integer id = promptPositiveIntOrCancel("Nhap id khoa hoc: ");
+        if (id == null) {
+            showMessagePlaceholder("CHINH SUA KHOA HOC", "Da huy thao tac chinh sua khoa hoc.");
+            return;
+        }
         try {
-            java.time.LocalDate createdAt = promptDate("Nhap ngay them moi (yyyy-MM-dd): ");
+            java.time.LocalDate createdAt = promptDateOrCancel("Nhap ngay them moi (yyyy-MM-dd): ");
+            if (createdAt == null) {
+                showMessagePlaceholder("CHINH SUA KHOA HOC", "Da huy thao tac chinh sua khoa hoc.");
+                return;
+            }
             Course updated = courseService.updateCourseCreatedAt(id, createdAt);
             showMessagePlaceholder("CHINH SUA KHOA HOC", "Da cap nhat ngay them cho khoa hoc #" + updated.getId() + ".");
         } catch (RuntimeException exception) {

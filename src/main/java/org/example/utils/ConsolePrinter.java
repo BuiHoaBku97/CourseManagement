@@ -16,8 +16,7 @@ public final class ConsolePrinter {
 
     public void printBanner(String title) {
         out.println();
-        out.println(title);
-        out.println(repeat('=', Math.max(24, title.length())));
+        out.println(buildBannerLine(title));
         out.println();
     }
 
@@ -111,5 +110,13 @@ public final class ConsolePrinter {
             builder.append(ch);
         }
         return builder.toString();
+    }
+
+    private String buildBannerLine(String title) {
+        int totalWidth = Math.max(24, title.length() + 20);
+        int padding = totalWidth - title.length();
+        int left = padding / 2;
+        int right = padding - left;
+        return repeat('=', left) + title + repeat('=', right);
     }
 }

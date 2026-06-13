@@ -57,12 +57,36 @@ public final class StudentManagementMenuScreen extends AbstractMenuScreen {
 
     private void handleAddStudent() {
         try {
-            String name = input.readRequiredLine("Nhap ho ten: ");
-            LocalDate dob = promptDate("Nhap ngay sinh (yyyy-MM-dd): ");
-            boolean sex = promptYesNo("Chon gioi tinh", "Nam", "Nu");
-            String email = input.readRequiredLine("Nhap email (@gmail.com): ");
-            String phone = input.readLine("Nhap so dien thoai (co the de trong, 10 chu so, bat dau bang 0): ");
-            String password = input.readRequiredLine("Nhap mat khau: ");
+            String name = promptRequiredLineOrCancel("Nhap ho ten: ");
+            if (name == null) {
+                showMessagePlaceholder("THEM MOI HOC VIEN", "Da huy thao tac them hoc vien.");
+                return;
+            }
+            LocalDate dob = promptDateOrCancel("Nhap ngay sinh (yyyy-MM-dd): ");
+            if (dob == null) {
+                showMessagePlaceholder("THEM MOI HOC VIEN", "Da huy thao tac them hoc vien.");
+                return;
+            }
+            Boolean sex = promptYesNoOrCancel("Gioi tinh", "Nam", "Nu", false);
+            if (sex == null) {
+                showMessagePlaceholder("THEM MOI HOC VIEN", "Da huy thao tac them hoc vien.");
+                return;
+            }
+            String email = promptEmailOrCancel("Nhap email (@gmail.com): ");
+            if (email == null) {
+                showMessagePlaceholder("THEM MOI HOC VIEN", "Da huy thao tac them hoc vien.");
+                return;
+            }
+            String phone = promptPhoneOrCancel("Nhap so dien thoai (co the de trong, 10 chu so, bat dau bang 0): ");
+            if (phone == null) {
+                showMessagePlaceholder("THEM MOI HOC VIEN", "Da huy thao tac them hoc vien.");
+                return;
+            }
+            String password = promptRequiredLineOrCancel("Nhap mat khau: ");
+            if (password == null) {
+                showMessagePlaceholder("THEM MOI HOC VIEN", "Da huy thao tac them hoc vien.");
+                return;
+            }
             Student student = studentService.addStudent(name, dob, sex, email, phone, password);
             showMessagePlaceholder(
                     "THEM MOI HOC VIEN",
@@ -73,7 +97,11 @@ public final class StudentManagementMenuScreen extends AbstractMenuScreen {
     }
 
     private void handleDeleteStudent() {
-        int id = promptPositiveInt("Nhap id hoc vien can xoa: ");
+        Integer id = promptPositiveIntOrCancel("Nhap id hoc vien can xoa: ");
+        if (id == null) {
+            showMessagePlaceholder("XOA HOC VIEN THEO ID", "Da huy thao tac xoa hoc vien.");
+            return;
+        }
         try {
             Student student = studentService.findStudentById(id)
                     .orElseThrow(() -> new IllegalStateException("Khong tim thay hoc vien voi id " + id + "."));
@@ -90,7 +118,11 @@ public final class StudentManagementMenuScreen extends AbstractMenuScreen {
 
     private void handleSearchStudent() {
         try {
-            String query = input.readRequiredLine("Nhap tu khoa tim kiem: ");
+            String query = promptRequiredLineOrCancel("Nhap tu khoa tim kiem: ");
+            if (query == null) {
+                showMessagePlaceholder("TIM KIEM HOC VIEN", "Da huy thao tac tim kiem hoc vien.");
+                return;
+            }
             showPagedStudents(
                     "TIM KIEM HOC VIEN",
                     request -> studentService.searchStudents(query, request),

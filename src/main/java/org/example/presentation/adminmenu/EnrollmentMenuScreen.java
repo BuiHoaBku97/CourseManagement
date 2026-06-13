@@ -7,6 +7,7 @@ import org.example.service.admin.EnrollmentService;
 import org.example.utils.ConsoleInput;
 import org.example.utils.ConsolePrinter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -47,8 +48,12 @@ public final class EnrollmentMenuScreen extends AbstractMenuScreen {
     }
 
     private void handleApprove() {
-        showPagedEnrollments("DANH SACH DANG KY CHO DUYET", enrollmentService::getWaitingRegistrations);
-        int id = promptPositiveInt("Nhap id dang ky can duyet: ");
+        renderEnrollments("DANH SACH DANG KY CHO DUYET", enrollmentService.getWaitingRegistrations());
+        Integer id = promptPositiveIntOrCancel("Nhap id dang ky can duyet (-1 de huy): ");
+        if (id == null) {
+            printer.printMessage("Da huy thao tac duyet dang ky.");
+            return;
+        }
         try {
             EnrollmentDetail detail = enrollmentService.approveEnrollment(id);
             showMessagePlaceholder(
@@ -60,8 +65,12 @@ public final class EnrollmentMenuScreen extends AbstractMenuScreen {
     }
 
     private void handleCancel() {
-        showPagedEnrollments("DANH SACH DANG KY", enrollmentService::getAllRegistrations);
-        int id = promptPositiveInt("Nhap id dang ky can xoa: ");
+        renderEnrollments("DANH SACH DANG KY", enrollmentService.getAllRegistrations());
+        Integer id = promptPositiveIntOrCancel("Nhap id dang ky can xoa (-1 de huy): ");
+        if (id == null) {
+            printer.printMessage("Da huy thao tac xoa dang ky.");
+            return;
+        }
         try {
             EnrollmentDetail detail = enrollmentService.cancelEnrollment(id);
             showMessagePlaceholder(
@@ -70,6 +79,14 @@ public final class EnrollmentMenuScreen extends AbstractMenuScreen {
         } catch (RuntimeException exception) {
             showMessagePlaceholder("XOA SINH VIEN KHOI KHOA HOC", exception.getMessage());
         }
+    }
+
+    private void renderEnrollments(String title, List<EnrollmentDetail> details) {
+        List<List<String>> rows = new ArrayList<>();
+        for (EnrollmentDetail detail : details) {
+            rows.add(EnrollmentTableRows.toRow(detail));
+        }
+        printer.printTable(title, EnrollmentTableRows.HEADERS, rows);
     }
 
     private void showPagedEnrollments(

@@ -28,7 +28,11 @@ public final class StudentRegisterCourseMenuScreen extends AbstractMenuScreen {
     @Override
     public ScreenResult show() {
         StudentAccount currentStudent = requireCurrentStudent();
-        int courseId = promptPositiveInt("Nhap id khoa hoc can dang ky: ");
+        Integer courseId = promptPositiveIntOrCancel("Nhap id khoa hoc can dang ky: ");
+        if (courseId == null) {
+            showMessagePlaceholder("DANG KY KHOA HOC", "Da huy thao tac dang ky khoa hoc.");
+            return ScreenResult.STUDENT_MENU;
+        }
         try {
             EnrollmentDetail detail = studentPortalService.registerCourse(currentStudent.getId(), courseId);
             showMessagePlaceholder(

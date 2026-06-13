@@ -27,8 +27,14 @@ public final class AdminLoginScreen extends AbstractMenuScreen {
         }
 
         while (true) {
-            String username = input.readRequiredLine("Ten dang nhap: ");
-            String password = input.readRequiredLine("Mat khau: ");
+            String username = promptRequiredLineOrCancel("Ten dang nhap: ");
+            if (username == null) {
+                return ScreenResult.STARTUP;
+            }
+            String password = promptRequiredLineOrCancel("Mat khau: ");
+            if (password == null) {
+                return ScreenResult.STARTUP;
+            }
 
             try {
                 if (authenticationService.authenticateAdmin(username, password)) {

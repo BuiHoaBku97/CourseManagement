@@ -197,7 +197,7 @@ public final class EnrollmentDao implements IEnrollmentDao {
     }
 
     public boolean updateStatusByStudentAndCourse(int studentId, int courseId, EnrollmentStatus status) {
-        String sql = "UPDATE enrollment SET status = ? WHERE student_id = ? AND course_id = ?";
+        String sql = "UPDATE enrollment SET status = CAST(? AS enrollment_status) WHERE student_id = ? AND course_id = ?";
         try (Connection connection = connectionFactory.openConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, status.name());
@@ -236,7 +236,7 @@ public final class EnrollmentDao implements IEnrollmentDao {
     }
 
     private boolean updateStatus(int id, String status) {
-        String sql = "UPDATE enrollment SET status = ? WHERE id = ?";
+        String sql = "UPDATE enrollment SET status = CAST(? AS enrollment_status) WHERE id = ?";
         try (Connection connection = connectionFactory.openConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, status);

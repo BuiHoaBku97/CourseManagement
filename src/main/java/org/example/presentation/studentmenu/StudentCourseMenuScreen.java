@@ -57,7 +57,11 @@ public final class StudentCourseMenuScreen extends AbstractMenuScreen {
 
     private void handleSearchCourses() {
         try {
-            String query = input.readRequiredLine("Nhap tu khoa tim kiem: ");
+            String query = promptRequiredLineOrCancel("Nhap tu khoa tim kiem: ");
+            if (query == null) {
+                showMessagePlaceholder("TIM KIEM KHOA HOC", "Da huy thao tac tim kiem khoa hoc.");
+                return;
+            }
             showPagedCourses(
                     "TIM KIEM KHOA HOC",
                     request -> studentPortalService.searchCourses(query, request),
