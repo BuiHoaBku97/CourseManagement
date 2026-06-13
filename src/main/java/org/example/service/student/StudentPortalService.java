@@ -3,6 +3,7 @@ package org.example.service.student;
 import org.example.common.Page;
 import org.example.common.PageRequest;
 import org.example.entity.Course;
+import org.example.entity.CourseRecommendation;
 import org.example.entity.EnrollmentDetail;
 import org.example.entity.Student;
 
@@ -16,6 +17,14 @@ public interface StudentPortalService {
     List<Course> searchCourses(String query);
 
     Page<Course> searchCourses(String query, PageRequest request);
+
+    List<CourseRecommendation> getRecommendedCourses(int studentId);
+
+    Page<CourseRecommendation> getRecommendedCourses(int studentId, PageRequest request);
+
+    List<CourseRecommendation> searchRecommendedCourses(int studentId, String query);
+
+    Page<CourseRecommendation> searchRecommendedCourses(int studentId, String query, PageRequest request);
 
     EnrollmentDetail registerCourse(int studentId, int courseId);
 

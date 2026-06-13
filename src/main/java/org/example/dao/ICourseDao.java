@@ -7,6 +7,7 @@ import org.example.entity.CourseTopicSpec;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface ICourseDao {
@@ -21,6 +22,8 @@ public interface ICourseDao {
     default Course insert(String name, int duration, String instructor, List<CourseTopicSpec> topicSpecs) {
         return insert(name, duration, instructor);
     }
+
+    Map<Integer, List<CourseTopicSpec>> findTopicsByCourseIds(List<Integer> courseIds);
 
     boolean updateName(int id, String name);
 

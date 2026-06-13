@@ -13,9 +13,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Map;
 
 public final class CourseDao implements ICourseDao {
     private final JdbcConnectionFactory connectionFactory;
@@ -184,6 +186,41 @@ public final class CourseDao implements ICourseDao {
             return resultSet.next() ? resultSet.getLong("total") : 0L;
         } catch (SQLException exception) {
             throw new IllegalStateException("Khong the dem khoa hoc.", exception);
+        }
+    }
+
+    @Override
+    public Map<Integer, List<CourseTopicSpec>> findTopicsByCourseIds(List<Integer> courseIds) {
+        if (courseIds == null || courseIds.isEmpty()) {
+            return Map.of();
+        }
+        StringBuilder sql = new StringBuilder(
+                "SELECT course_id, topic_code, level FROM course_topic WHERE course_id IN (");
+        for (int i = 0; i < courseIds.size(); i++) {
+            if (i > 0) {
+                sql.append(", ");
+            }
+            sql.append("?");
+        }
+        sql.append(") ORDER BY course_id ASC, topic_code ASC, level ASC");
+
+        try (Connection connection = connectionFactory.openConnection();
+                PreparedStatement statement = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < courseIds.size(); i++) {
+                statement.setInt(i + 1, courseIds.get(i));
+            }
+            try (ResultSet resultSet = statement.executeQuery()) {
+                Map<Integer, List<CourseTopicSpec>> topicsByCourseId = new LinkedHashMap<>();
+                while (resultSet.next()) {
+                    int courseId = resultSet.getInt("course_id");
+                    List<CourseTopicSpec> topics =
+                            topicsByCourseId.computeIfAbsent(courseId, ignored -> new ArrayList<>());
+                    topics.add(new CourseTopicSpec(resultSet.getString("topic_code"), resultSet.getInt("level")));
+                }
+                return topicsByCourseId;
+            }
+        } catch (SQLException exception) {
+            throw new IllegalStateException("Khong the doc du lieu topic khoa hoc.", exception);
         }
     }
 

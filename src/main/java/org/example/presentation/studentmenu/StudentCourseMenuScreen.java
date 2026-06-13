@@ -2,6 +2,7 @@ package org.example.presentation.studentmenu;
 
 import org.example.common.Page;
 import org.example.common.PageRequest;
+import org.example.entity.CourseRecommendation;
 import org.example.entity.StudentAccount;
 import org.example.presentation.AbstractMenuScreen;
 import org.example.presentation.ScreenResult;
@@ -45,9 +46,9 @@ public final class StudentCourseMenuScreen extends AbstractMenuScreen {
                 }
                 case 1 -> showPagedCourses(
                         "DANH SACH KHOA HOC",
-                        studentPortalService::getAvailableCourses,
+                        request -> studentPortalService.getRecommendedCourses(currentStudent.getId(), request),
                         "Chua co khoa hoc nao.");
-                case 2 -> handleSearchCourses();
+                case 2 -> handleSearchCourses(currentStudent.getId());
                 default -> {
                     // Input validator already guards the range.
                 }
@@ -55,7 +56,7 @@ public final class StudentCourseMenuScreen extends AbstractMenuScreen {
         }
     }
 
-    private void handleSearchCourses() {
+    private void handleSearchCourses(int studentId) {
         try {
             String query = promptRequiredLineOrCancel("Nhap tu khoa tim kiem: ");
             if (query == null) {
@@ -64,7 +65,7 @@ public final class StudentCourseMenuScreen extends AbstractMenuScreen {
             }
             showPagedCourses(
                     "TIM KIEM KHOA HOC",
-                    request -> studentPortalService.searchCourses(query, request),
+                    request -> studentPortalService.searchRecommendedCourses(studentId, query, request),
                     "Khong tim thay khoa hoc phu hop.");
         } catch (RuntimeException exception) {
             showMessagePlaceholder("TIM KIEM KHOA HOC", exception.getMessage());
@@ -73,7 +74,7 @@ public final class StudentCourseMenuScreen extends AbstractMenuScreen {
 
     private void showPagedCourses(
             String title,
-            java.util.function.Function<PageRequest, Page<org.example.entity.Course>> pageLoader,
+            java.util.function.Function<PageRequest, Page<CourseRecommendation>> pageLoader,
             String emptyMessage) {
         showPagedTable(title, StudentCourseTableRows.HEADERS, emptyMessage, pageLoader, StudentCourseTableRows::toRow);
     }

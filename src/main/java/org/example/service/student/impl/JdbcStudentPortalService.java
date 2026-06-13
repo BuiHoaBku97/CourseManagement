@@ -6,6 +6,8 @@ import org.example.dao.ICourseDao;
 import org.example.dao.IEnrollmentDao;
 import org.example.dao.IStudentDao;
 import org.example.entity.Course;
+import org.example.entity.CourseRecommendation;
+import org.example.entity.CourseTopicSpec;
 import org.example.entity.EnrollmentDetail;
 import org.example.entity.EnrollmentStatus;
 import org.example.entity.Student;
@@ -16,7 +18,10 @@ import org.example.utils.PasswordHasher;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -66,6 +71,38 @@ public final class JdbcStudentPortalService implements org.example.service.stude
             throw new IllegalArgumentException("Tu khoa tim kiem khong duoc de trong.");
         }
         return courseDao.searchByName(query, request);
+    }
+
+    @Override
+    public List<CourseRecommendation> getRecommendedCourses(int studentId) {
+        ensureStudentExists(studentId);
+        return buildRecommendations(courseDao.findAll(), getRegisteredEnrollments(studentId));
+    }
+
+    @Override
+    public Page<CourseRecommendation> getRecommendedCourses(int studentId, PageRequest request) {
+        ensureStudentExists(studentId);
+        List<CourseRecommendation> recommendations = buildRecommendations(courseDao.findAll(), getRegisteredEnrollments(studentId));
+        return page(recommendations, request);
+    }
+
+    @Override
+    public List<CourseRecommendation> searchRecommendedCourses(int studentId, String query) {
+        ensureStudentExists(studentId);
+        if (InputValidator.isBlank(query)) {
+            throw new IllegalArgumentException("Tu khoa tim kiem khong duoc de trong.");
+        }
+        return buildRecommendations(courseDao.searchByName(query), getRegisteredEnrollments(studentId));
+    }
+
+    @Override
+    public Page<CourseRecommendation> searchRecommendedCourses(int studentId, String query, PageRequest request) {
+        ensureStudentExists(studentId);
+        if (InputValidator.isBlank(query)) {
+            throw new IllegalArgumentException("Tu khoa tim kiem khong duoc de trong.");
+        }
+        List<CourseRecommendation> recommendations = buildRecommendations(courseDao.searchByName(query), getRegisteredEnrollments(studentId));
+        return page(recommendations, request);
     }
 
     @Override
@@ -193,6 +230,58 @@ public final class JdbcStudentPortalService implements org.example.service.stude
     private Student ensureStudentExists(int studentId) {
         return studentDao.findById(studentId)
                 .orElseThrow(() -> new IllegalStateException("Khong tim thay hoc vien voi id " + studentId + "."));
+    }
+
+    private List<EnrollmentDetail> getRegisteredEnrollments(int studentId) {
+        ensureStudentExists(studentId);
+        return enrollmentDao.findByStudentId(studentId);
+    }
+
+    private List<CourseRecommendation> buildRecommendations(List<Course> courses, List<EnrollmentDetail> registeredEnrollments) {
+        List<Integer> registeredCourseIds = registeredEnrollments.stream().map(EnrollmentDetail::getCourseId).toList();
+        Map<String, Integer> highestRegisteredLevelByTopic = new HashMap<>();
+
+        if (!registeredCourseIds.isEmpty()) {
+            Map<Integer, List<CourseTopicSpec>> registeredTopics =
+                    courseDao.findTopicsByCourseIds(registeredCourseIds);
+            for (List<CourseTopicSpec> specs : registeredTopics.values()) {
+                for (CourseTopicSpec spec : specs) {
+                    highestRegisteredLevelByTopic.merge(spec.getTopicCode(), spec.getLevel(), Math::max);
+                }
+            }
+        }
+
+        Map<Integer, List<CourseTopicSpec>> courseTopics =
+                courseDao.findTopicsByCourseIds(courses.stream().map(Course::getId).toList());
+        List<CourseRecommendation> recommendations = new ArrayList<>();
+        for (Course course : courses) {
+            if (registeredCourseIds.contains(course.getId())) {
+                continue;
+            }
+            List<CourseTopicSpec> topics = courseTopics.getOrDefault(course.getId(), List.of());
+            int bestGap = Integer.MAX_VALUE;
+            for (CourseTopicSpec topic : topics) {
+                Integer registeredLevel = highestRegisteredLevelByTopic.get(topic.getTopicCode());
+                if (registeredLevel != null && topic.getLevel() > registeredLevel) {
+                    bestGap = Math.min(bestGap, topic.getLevel() - registeredLevel);
+                }
+            }
+            boolean recommended = bestGap != Integer.MAX_VALUE;
+            recommendations.add(new CourseRecommendation(course, recommended, recommended ? bestGap : Integer.MAX_VALUE));
+        }
+
+        recommendations.sort(
+                Comparator.comparing(CourseRecommendation::isRecommended).reversed()
+                        .thenComparingInt(CourseRecommendation::getRecommendationGap)
+                        .thenComparing(item -> item.getCourse().getName(), String.CASE_INSENSITIVE_ORDER)
+                        .thenComparingInt(item -> item.getCourse().getId()));
+        return recommendations;
+    }
+
+    private <T> Page<T> page(List<T> items, PageRequest request) {
+        int fromIndex = Math.min(request.offset(), items.size());
+        int toIndex = Math.min(fromIndex + request.size(), items.size());
+        return new Page<>(new ArrayList<>(items.subList(fromIndex, toIndex)), request.page(), request.size(), items.size());
     }
 
     private Course ensureCourseExists(int courseId) {
