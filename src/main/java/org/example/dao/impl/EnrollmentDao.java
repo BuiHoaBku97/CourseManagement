@@ -159,6 +159,7 @@ public final class EnrollmentDao implements IEnrollmentDao {
                         + "JOIN course c ON c.id = e.course_id "
                         + "JOIN student s ON s.id = e.student_id "
                         + "WHERE e.student_id = ? AND e.course_id = ? "
+                        + "ORDER BY e.registered_at DESC, e.id DESC "
                         + "LIMIT 1";
         try (Connection connection = connectionFactory.openConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {

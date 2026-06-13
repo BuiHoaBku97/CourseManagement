@@ -109,17 +109,15 @@ public final class JdbcStudentPortalService implements org.example.service.stude
     public EnrollmentDetail registerCourse(int studentId, int courseId) {
         ensureStudentExists(studentId);
         ensureCourseExists(courseId);
-        var existingEnrollment = enrollmentDao.findDetailByStudentAndCourse(studentId, courseId);
-        if (existingEnrollment.isPresent()) {
-            EnrollmentDetail existing = existingEnrollment.get();
-            if (existing.getStatus() != EnrollmentStatus.CANCEL) {
-                throw new IllegalStateException("Ban da co dang ky cho khoa hoc nay.");
+        EnrollmentDetail latestEnrollment =
+                enrollmentDao.findDetailByStudentAndCourse(studentId, courseId).orElse(null);
+        if (latestEnrollment != null) {
+            if (latestEnrollment.getStatus() == EnrollmentStatus.WAITING) {
+                throw new IllegalStateException("Ban da dang ky khoa hoc nay, dang cho sap xep!");
             }
-            if (!enrollmentDao.updateStatusByStudentAndCourse(studentId, courseId, EnrollmentStatus.WAITING)) {
-                throw new IllegalStateException("Khong the khoi phuc dang ky.");
+            if (latestEnrollment.getStatus() == EnrollmentStatus.CONFIRM) {
+                throw new IllegalStateException("Dang ky khoa hoc nay da duoc xac nhan.");
             }
-            return enrollmentDao.findDetailByStudentAndCourse(studentId, courseId)
-                    .orElseThrow(() -> new IllegalStateException("Khong the xac minh dang ky sau khi cap nhat."));
         }
         return enrollmentDao.insertWaiting(studentId, courseId);
     }
