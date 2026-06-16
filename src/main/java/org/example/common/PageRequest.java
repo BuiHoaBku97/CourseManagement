@@ -16,10 +16,6 @@ public record PageRequest(int page, int size) {
         return new PageRequest(1, DEFAULT_SIZE);
     }
 
-    public static PageRequest firstPage(int size) {
-        return new PageRequest(1, size);
-    }
-
     public int offset() {
         return (page - 1) * size;
     }

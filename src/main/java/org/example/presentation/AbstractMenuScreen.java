@@ -46,10 +46,6 @@ public abstract class AbstractMenuScreen implements Screen {
         }
     }
 
-    protected void showListPlaceholder(String title, List<String> headers, String note) {
-        featureScreen.showTable(title, headers, note);
-    }
-
     protected void showMessagePlaceholder(String title, String note) {
         featureScreen.showMessage(title, note);
     }
@@ -66,16 +62,6 @@ public abstract class AbstractMenuScreen implements Screen {
             Function<PageRequest, Page<T>> pageLoader,
             Function<T, List<String>> rowMapper) {
         pagedTablePresenter.show(title, headers, emptyMessage, pageLoader, rowMapper);
-    }
-
-    protected int promptPositiveInt(String prompt) {
-        while (true) {
-            Integer value = InputValidator.parseInteger(input.readLine(prompt));
-            if (value != null && value > 0) {
-                return value;
-            }
-            printer.printMessage("Vui long nhap so nguyen duong hop le.");
-        }
     }
 
     protected Integer promptPositiveIntOrCancel(String prompt) {

@@ -1,5 +1,7 @@
 package org.example.presentation.adminmenu;
 
+import org.example.common.Page;
+import org.example.common.PageRequest;
 import org.example.entity.CourseEnrollmentStat;
 import org.example.entity.SystemSummary;
 import org.example.presentation.AbstractMenuScreen;
@@ -8,7 +10,6 @@ import org.example.service.admin.StatisticsService;
 import org.example.utils.ConsoleInput;
 import org.example.utils.ConsolePrinter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,9 +39,9 @@ public final class StatisticsMenuScreen extends AbstractMenuScreen {
                     return ScreenResult.ADMIN_MENU;
                 }
                 case 1 -> showSummary();
-                case 2 -> showStats("TONG SO HOC VIEN THEO TUNG KHOA", statisticsService.getStudentCountByCourse());
-                case 3 -> showStats("TOP 5 KHOA HOC DONG SINH VIEN NHAT", statisticsService.getTop5CoursesByEnrollment());
-                case 4 -> showStats("KHOA HOC CO TREN 10 HOC VIEN", statisticsService.getCoursesWithMoreThan10Students());
+                case 2 -> showPagedStats("TONG SO HOC VIEN THEO TUNG KHOA", statisticsService.getStudentCountByCourse());
+                case 3 -> showPagedStats("TOP 5 KHOA HOC DONG SINH VIEN NHAT", statisticsService.getTop5CoursesByEnrollment());
+                case 4 -> showPagedStats("KHOA HOC CO TREN 10 HOC VIEN", statisticsService.getCoursesWithMoreThan10Students());
                 default -> {
                     // Input validator already guards the range.
                 }
@@ -59,18 +60,21 @@ public final class StatisticsMenuScreen extends AbstractMenuScreen {
                         + ".");
     }
 
-    private void showStats(String title, List<CourseEnrollmentStat> stats) {
-        List<List<String>> rows = new ArrayList<>();
-        for (CourseEnrollmentStat stat : stats) {
-            rows.add(
-                    List.of(
-                            String.valueOf(stat.getCourseId()),
-                            stat.getCourseName(),
-                            String.valueOf(stat.getStudentCount())));
-        }
-        if (rows.isEmpty()) {
-            rows.add(List.of("Chua co du lieu", "", ""));
-        }
-        showTable(title, List.of("ID", "Ten khoa hoc", "So hoc vien"), rows);
+    private void showPagedStats(String title, List<CourseEnrollmentStat> stats) {
+        showPagedTable(
+                title,
+                List.of("ID", "Ten khoa hoc", "So hoc vien"),
+                "Chua co du lieu",
+                request -> toPage(stats, request),
+                stat -> List.of(
+                        String.valueOf(stat.getCourseId()),
+                        stat.getCourseName(),
+                        String.valueOf(stat.getStudentCount())));
+    }
+
+    private Page<CourseEnrollmentStat> toPage(List<CourseEnrollmentStat> stats, PageRequest request) {
+        int fromIndex = Math.min(request.offset(), stats.size());
+        int toIndex = Math.min(fromIndex + request.size(), stats.size());
+        return new Page<>(stats.subList(fromIndex, toIndex), request.page(), request.size(), stats.size());
     }
 }
