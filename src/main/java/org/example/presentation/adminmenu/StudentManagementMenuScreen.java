@@ -105,6 +105,10 @@ public final class StudentManagementMenuScreen extends AbstractMenuScreen {
         try {
             Student student = studentService.findStudentById(id)
                     .orElseThrow(() -> new IllegalStateException("Khong tim thay hoc vien voi id " + id + "."));
+            if (studentService.hasActiveEnrollments(id)) {
+                showMessagePlaceholder("XOA HOC VIEN THEO ID", "Hoc vien dang co dang ky, khong the xoa!");
+                return;
+            }
             if (!confirmAction("XAC NHAN XOA HOC VIEN " + student.getName())) {
                 showMessagePlaceholder("XOA HOC VIEN THEO ID", "Da huy thao tac xoa hoc vien.");
                 return;

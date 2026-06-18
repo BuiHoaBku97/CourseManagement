@@ -210,6 +210,38 @@ public final class EnrollmentDao implements IEnrollmentDao {
         }
     }
 
+    public boolean hasActiveEnrollmentForCourse(int courseId) {
+        String sql =
+                "SELECT COUNT(*) AS total "
+                        + "FROM enrollment "
+                        + "WHERE course_id = ? AND status IN ('WAITING', 'CONFIRM')";
+        try (Connection connection = connectionFactory.openConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, courseId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return resultSet.next() && resultSet.getLong("total") > 0L;
+            }
+        } catch (SQLException exception) {
+            throw new IllegalStateException("Khong the kiem tra trang thai dang ky khoa hoc.", exception);
+        }
+    }
+
+    public boolean hasActiveEnrollmentForStudent(int studentId) {
+        String sql =
+                "SELECT COUNT(*) AS total "
+                        + "FROM enrollment "
+                        + "WHERE student_id = ? AND status IN ('WAITING', 'CONFIRM')";
+        try (Connection connection = connectionFactory.openConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, studentId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return resultSet.next() && resultSet.getLong("total") > 0L;
+            }
+        } catch (SQLException exception) {
+            throw new IllegalStateException("Khong the kiem tra trang thai dang ky hoc vien.", exception);
+        }
+    }
+
     public Optional<Enrollment> findById(int id) {
         String sql =
                 "SELECT id, student_id, course_id, registered_at, status "

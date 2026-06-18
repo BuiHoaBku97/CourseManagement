@@ -30,6 +30,8 @@ public interface CourseService {
 
     Course updateCourseCreatedAt(int id, LocalDate createdAt);
 
+    boolean hasActiveEnrollments(int courseId);
+
     boolean deleteCourse(int id);
 
     List<Course> searchCoursesByName(String query);

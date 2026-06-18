@@ -3,6 +3,7 @@ package org.example.service.student.impl;
 import org.example.common.Page;
 import org.example.common.PageRequest;
 import org.example.dao.IStudentDao;
+import org.example.dao.IEnrollmentDao;
 import org.example.entity.Student;
 import org.example.utils.InputValidator;
 import org.example.utils.PasswordHasher;
@@ -14,9 +15,11 @@ import java.util.Optional;
 
 public final class JdbcStudentService implements org.example.service.student.StudentService {
     private final IStudentDao studentDao;
+    private final IEnrollmentDao enrollmentDao;
 
-    public JdbcStudentService(IStudentDao studentDao) {
+    public JdbcStudentService(IStudentDao studentDao, IEnrollmentDao enrollmentDao) {
         this.studentDao = Objects.requireNonNull(studentDao, "studentDao");
+        this.enrollmentDao = Objects.requireNonNull(enrollmentDao, "enrollmentDao");
     }
 
     @Override
@@ -108,8 +111,17 @@ public final class JdbcStudentService implements org.example.service.student.Stu
     }
 
     @Override
+    public boolean hasActiveEnrollments(int studentId) {
+        ensureStudentExists(studentId);
+        return enrollmentDao.hasActiveEnrollmentForStudent(studentId);
+    }
+
+    @Override
     public boolean deleteStudent(int id) {
         ensureStudentExists(id);
+        if (hasActiveEnrollments(id)) {
+            throw new IllegalStateException("Hoc vien dang co dang ky, khong the xoa!");
+        }
         return studentDao.deleteById(id);
     }
 

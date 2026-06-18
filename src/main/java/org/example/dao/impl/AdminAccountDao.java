@@ -42,6 +42,33 @@ public final class AdminAccountDao implements IAdminAccountDao {
         }
     }
 
+    @Override
+    public AdminAccount insert(String username, String passwordHash) {
+        String normalizedUsername = normalize(username);
+        String normalizedPasswordHash = normalize(passwordHash);
+        String sql =
+                "INSERT INTO admin (username, password) VALUES (?, ?) "
+                        + "RETURNING id, username, password";
+
+        try (Connection connection = connectionFactory.openConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, normalizedUsername);
+            statement.setString(2, normalizedPasswordHash);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (!resultSet.next()) {
+                    throw new IllegalStateException("Khong the tao tai khoan admin.");
+                }
+                return new AdminAccount(
+                        resultSet.getInt("id"),
+                        resultSet.getString("username"),
+                        resultSet.getString("password"));
+            }
+        } catch (SQLException exception) {
+            throw new IllegalStateException("Khong the tao tai khoan admin.", exception);
+        }
+    }
+
     public AdminAccount getDefaultAdmin(){
         return new AdminAccount(0, "admin", PasswordHasher.hash("admin"));
     }

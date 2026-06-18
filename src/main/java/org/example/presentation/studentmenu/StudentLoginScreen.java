@@ -33,7 +33,7 @@ public final class StudentLoginScreen extends AbstractMenuScreen {
         }
 
         while (true) {
-            String loginId = promptRequiredLineOrCancel("Email hoac so dien thoai: ");
+            String loginId = promptRequiredLineOrCancel("Email hoc vien: ");
             if (loginId == null) {
                 return ScreenResult.STARTUP;
             }

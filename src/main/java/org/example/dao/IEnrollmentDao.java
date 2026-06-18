@@ -36,6 +36,10 @@ public interface IEnrollmentDao {
 
     boolean updateStatusByStudentAndCourse(int studentId, int courseId, EnrollmentStatus status);
 
+    boolean hasActiveEnrollmentForCourse(int courseId);
+
+    boolean hasActiveEnrollmentForStudent(int studentId);
+
     Optional<Enrollment> findById(int id);
 
     boolean approve(int id);

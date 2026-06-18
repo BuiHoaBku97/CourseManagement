@@ -35,6 +35,8 @@ public interface StudentService {
 
     Student updateStudentPassword(int id, String rawPassword);
 
+    boolean hasActiveEnrollments(int studentId);
+
     boolean deleteStudent(int id);
 
     List<Student> searchStudents(String query);

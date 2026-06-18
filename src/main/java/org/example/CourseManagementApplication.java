@@ -28,9 +28,11 @@ import org.example.presentation.studentmenu.StudentPasswordMenuScreen;
 import org.example.presentation.studentmenu.StudentRegisterCourseMenuScreen;
 import org.example.presentation.studentmenu.StudentRegisteredCourseMenuScreen;
 import org.example.service.admin.CourseService;
+import org.example.service.admin.AdminAccountService;
 import org.example.service.admin.EnrollmentService;
 import org.example.service.admin.StatisticsService;
 import org.example.service.admin.impl.JdbcCourseService;
+import org.example.service.admin.impl.JdbcAdminAccountService;
 import org.example.service.admin.impl.JdbcEnrollmentService;
 import org.example.service.admin.impl.JdbcStatisticsService;
 import org.example.service.auth.AuthenticationService;
@@ -85,9 +87,15 @@ public final class CourseManagementApplication {
         ConsolePrinter printer = new ConsolePrinter(printStream);
         StudentSessionContext studentSessionContext = new StudentSessionContext();
         JdbcConnectionFactory connectionFactory = new JdbcConnectionFactory();
-        AuthenticationService authenticationService = createAuthenticationService(connectionFactory);
-        CourseService courseService = new JdbcCourseService(new CourseDao(connectionFactory));
-        StudentService studentService = new JdbcStudentService(new StudentDao(connectionFactory));
+        AdminAccountDao adminAccountDao = new AdminAccountDao(connectionFactory);
+        AuthenticationService authenticationService = createAuthenticationService(adminAccountDao, connectionFactory);
+        AdminAccountService adminAccountService = new JdbcAdminAccountService(adminAccountDao);
+        CourseService courseService = new JdbcCourseService(
+                new CourseDao(connectionFactory),
+                new EnrollmentDao(connectionFactory));
+        StudentService studentService = new JdbcStudentService(
+                new StudentDao(connectionFactory),
+                new EnrollmentDao(connectionFactory));
         EnrollmentService enrollmentService = new JdbcEnrollmentService(new EnrollmentDao(connectionFactory));
         StatisticsService statisticsService = new JdbcStatisticsService(new StatisticsDao(connectionFactory));
         StudentPortalService studentPortalService = createStudentPortalService(connectionFactory);
@@ -96,6 +104,7 @@ public final class CourseManagementApplication {
                 printer,
                 studentSessionContext,
                 authenticationService,
+                adminAccountService,
                 courseService,
                 studentService,
                 enrollmentService,
@@ -103,9 +112,10 @@ public final class CourseManagementApplication {
                 studentPortalService);
     }
 
-    private static AuthenticationService createAuthenticationService(JdbcConnectionFactory connectionFactory) {
+    private static AuthenticationService createAuthenticationService(
+            AdminAccountDao adminAccountDao, JdbcConnectionFactory connectionFactory) {
         return new JdbcAuthenticationService(
-                new AdminAccountDao(connectionFactory),
+                adminAccountDao,
                 new StudentAccountDao(connectionFactory));
     }
 
@@ -123,6 +133,7 @@ public final class CourseManagementApplication {
         ConsolePrinter printer = applicationContext.printer();
         StudentSessionContext studentSessionContext = applicationContext.studentSessionContext();
         AuthenticationService authenticationService = applicationContext.authenticationService();
+        AdminAccountService adminAccountService = applicationContext.adminAccountService();
         CourseService courseService = applicationContext.courseService();
         StudentService studentService = applicationContext.studentService();
         EnrollmentService enrollmentService = applicationContext.enrollmentService();
@@ -134,7 +145,7 @@ public final class CourseManagementApplication {
         screens.put(
                 ScreenResult.STUDENT_LOGIN,
                 new StudentLoginScreen(input, printer, authenticationService, studentSessionContext));
-        screens.put(ScreenResult.ADMIN_MENU, new AdminMenuScreen(input, printer));
+        screens.put(ScreenResult.ADMIN_MENU, new AdminMenuScreen(input, printer, adminAccountService));
         screens.put(ScreenResult.COURSE_MENU, new CourseMenuScreen(input, printer, courseService));
         screens.put(ScreenResult.COURSE_EDIT_MENU, new CourseEditMenuScreen(input, printer, courseService));
         screens.put(ScreenResult.COURSE_SORT_MENU, new CourseSortMenuScreen(input, printer, courseService));
@@ -169,6 +180,7 @@ public final class CourseManagementApplication {
             ConsolePrinter printer,
             StudentSessionContext studentSessionContext,
             AuthenticationService authenticationService,
+            AdminAccountService adminAccountService,
             CourseService courseService,
             StudentService studentService,
             EnrollmentService enrollmentService,

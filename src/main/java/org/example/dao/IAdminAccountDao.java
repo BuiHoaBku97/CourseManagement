@@ -7,5 +7,7 @@ import java.util.Optional;
 public interface IAdminAccountDao {
     Optional<AdminAccount> findByUsername(String username);
 
+    AdminAccount insert(String username, String passwordHash);
+
     AdminAccount getDefaultAdmin();
 }

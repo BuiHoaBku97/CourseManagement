@@ -3,6 +3,7 @@ package org.example.service.admin.impl;
 import org.example.common.Page;
 import org.example.common.PageRequest;
 import org.example.dao.ICourseDao;
+import org.example.dao.IEnrollmentDao;
 import org.example.entity.Course;
 import org.example.entity.CourseTopicSpec;
 import org.example.service.admin.CourseService;
@@ -17,9 +18,11 @@ import java.util.Optional;
 
 public final class JdbcCourseService implements CourseService {
     private final ICourseDao courseDao;
+    private final IEnrollmentDao enrollmentDao;
 
-    public JdbcCourseService(ICourseDao courseDao) {
+    public JdbcCourseService(ICourseDao courseDao, IEnrollmentDao enrollmentDao) {
         this.courseDao = Objects.requireNonNull(courseDao, "courseDao");
+        this.enrollmentDao = Objects.requireNonNull(enrollmentDao, "enrollmentDao");
     }
 
     @Override
@@ -95,8 +98,17 @@ public final class JdbcCourseService implements CourseService {
     }
 
     @Override
+    public boolean hasActiveEnrollments(int courseId) {
+        ensureCourseExists(courseId);
+        return enrollmentDao.hasActiveEnrollmentForCourse(courseId);
+    }
+
+    @Override
     public boolean deleteCourse(int id) {
         ensureCourseExists(id);
+        if (hasActiveEnrollments(id)) {
+            throw new IllegalStateException("Khoa hoc dang dien ra, khong the xoa!");
+        }
         return courseDao.deleteById(id);
     }
 

@@ -65,11 +65,23 @@ public final class CourseMenuScreen extends AbstractMenuScreen {
 
     private void handleAddCourse() {
         try {
-            String name = promptRequiredLineOrCancel("Nhap ten khoa hoc: ");
-            if (name == null) {
-                showMessagePlaceholder("THEM MOI KHOA HOC", "Da huy thao tac them khoa hoc.");
-                return;
+            String name ;
+
+            while(true){
+                name = promptRequiredLineOrCancel("Nhap ten khoa hoc: ");
+                if (name == null) {
+                    showMessagePlaceholder("THEM MOI KHOA HOC", "Da huy thao tac them khoa hoc.");
+                    return;
+                }
+                
+                if( courseService.searchCoursesByName(name).stream().count()>0){
+                    printer.printMessage("Ten khoa hoc da ton tai!");
+                    continue;
+                }
+
+                break;
             }
+
             Integer duration = promptPositiveIntOrCancel("Nhap thoi luong (so gio): ");
             if (duration == null) {
                 showMessagePlaceholder("THEM MOI KHOA HOC", "Da huy thao tac them khoa hoc.");
@@ -109,6 +121,10 @@ public final class CourseMenuScreen extends AbstractMenuScreen {
         try {
             Course course = courseService.findCourseById(id)
                     .orElseThrow(() -> new IllegalStateException("Khong tim thay khoa hoc voi id " + id + "."));
+            if (courseService.hasActiveEnrollments(id)) {
+                showMessagePlaceholder("XOA KHOA HOC THEO ID", "Khoa hoc dang dien ra, khong the xoa!");
+                return;
+            }
             if (!confirmAction("XAC NHAN XOA KHOA HOC " + course.getName())) {
                 showMessagePlaceholder("XOA KHOA HOC THEO ID", "Da huy thao tac xoa khoa hoc.");
                 return;
